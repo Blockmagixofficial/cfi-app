@@ -160,8 +160,8 @@ const Signup = () => {
     <Box
       color={"black"}
       width={!isMobile ? "80%" : "100%"}
-      // border={"1px solid red"}
-      height={!isMobile ? "50vh" : "100vh"}
+      border={"1px solid red"}
+      height={!isMobile ? "50vh" : "60vh"}
       mt={!isSignIn ? 10 : 17.5}
       ml={!isMobile ? 10 : 0}
     >
