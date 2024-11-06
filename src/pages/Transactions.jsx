@@ -118,6 +118,14 @@ const TransactionApp = () => {
       setScreen("mpin");
     }
   };
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+
+    // Remove leading zeros by converting the string to a number and back to a string
+    const sanitizedValue = value ? String(Number(value)) : "";
+
+    setTransactionAmount(sanitizedValue);
+  };
 
   const handleMPINInput = (value, index) => {
     const newMpin = [...mpin];
@@ -319,7 +327,7 @@ const TransactionApp = () => {
             label="Amount"
             variant="outlined"
             value={transactionAmount}
-            onChange={(e) => setTransactionAmount(Number(e.target.value))}
+            onChange={handleAmountChange} // Use the new handler here
             sx={{
               mb: 3,
               borderRadius: "10px",
@@ -479,7 +487,11 @@ const TransactionApp = () => {
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
           Invalid amount! Please enter a valid transaction amount.
         </Alert>
       </Snackbar>
