@@ -4,7 +4,7 @@ import { useNavigate,useLocation } from 'react-router';
 import img from "../assets/nodp.jpg";
 import img2 from "../assets/nodp2.jpg";
 import ActionAreaCard from '../components/Card';
-
+import logo from "../assets/logo.png"
 const banks = [
     { bankName: "State Bank of India", accountNo: "1234*****890" },
     { bankName: "HDFC Bank", accountNo: "5678*****123" },
@@ -37,8 +37,8 @@ const Dashboard = () => {
             placeItems: "center"
         }}>
             <Box display={"flex"} justifyContent={"space-around"} alignItems={"center"} gap={10} m={2}>
-                <Typography color={"black"}>CFI</Typography>
-                <Button onClick={handleLogout} sx={{ border: "1px solid red" }}>Log out</Button>
+                <img src={logo} alt={"logo"} height={50} width={50}/>
+                <Button onClick={handleLogout} sx={{ border: "1px solid red",padding:1 }}>Log out</Button>
             </Box>
             <ActionAreaCard 
                 email={responseData.emailId} 

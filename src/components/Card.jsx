@@ -16,14 +16,14 @@ export default function ActionAreaCard({email,id,image,bankName,accountNo}) {
           alt="green iguana"
         />
         <CardContent>
-          <Typography gutterBottom variant="h5" component="div" display={"flex"}alignItems={"center"} gap={2}>
+          <Typography gutterBottom variant="h5" component="div" display={"flex"} alignItems={"center"} gap={2}>
             Email: <Typography fontSize={"16px"}>{email}</Typography>
           </Typography>
           <Typography gutterBottom variant="h5" component="div">
             UCPI-id: {id}
           </Typography>
-          <Typography gutterBottom variant="h5" component="div">
-            Bank Name: {bankName}
+          <Typography gutterBottom variant="h5" component="div" display={"flex"} alignItems={"center"} gap={2}>
+            Bank Name: <Typography fontSize={"16px"}>{bankName}</Typography>
           </Typography>
           <Typography gutterBottom variant="h5" component="div">
             Account No: {accountNo}
