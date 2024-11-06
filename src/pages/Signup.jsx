@@ -1,18 +1,27 @@
-import { Box, Typography, Snackbar, Alert,useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Snackbar,
+  Alert,
+  useMediaQuery,
+  IconButton,
+  Button,
+} from "@mui/material";
 import React, { useState } from "react";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { useLocation, useNavigate } from "react-router-dom"; // Updated for redirect
+import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 
 const Signup = () => {
   const location = useLocation();
   const isSignIn = location.pathname === "/signin";
-  const navigate = useNavigate(); // For navigation after success
+  const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width:600px)");
+
   // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
 
@@ -27,7 +36,7 @@ const Signup = () => {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "success", // Can be 'error' for error cases
+    severity: "success",
   });
 
   // Validation states
@@ -60,23 +69,22 @@ const Signup = () => {
     });
   };
 
-  // Function to generate a unique username
+  // Generate a unique username
   const generateUniqueUsername = () => {
-    const cleanedFullName = formData.fullName.replace(/\s+/g, "").toLowerCase(); // Remove spaces
-    const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number (0 to 9999)
-    const userName = `${cleanedFullName}${randomNumber}`; // Concatenate full name with random number
-    return userName;
+    const cleanedFullName = formData.fullName.replace(/\s+/g, "").toLowerCase();
+    const randomNumber = Math.floor(Math.random() * 10000);
+    return `${cleanedFullName}${randomNumber}`;
   };
 
-  // Function to handle registration
+  // Handle registration
   const handleRegister = async () => {
-    const generatedUserName = generateUniqueUsername(); // Generate a unique username
+    const generatedUserName = generateUniqueUsername();
 
     try {
       const response = await axiosInstance.post("/user/signup", {
         step: 1,
         emailId: formData.email,
-        userName: generatedUserName, // Use the generated unique username
+        userName: generatedUserName,
         firstName: formData.fullName,
         lastName: formData.fullName,
         password: formData.password,
@@ -89,8 +97,8 @@ const Signup = () => {
           severity: "success",
         });
         setTimeout(() => {
-          navigate("/signin"); // Redirect to signin after signup success
-        }, 2000); // Delay the redirection to let Snackbar show
+          navigate("/signin");
+        }, 2000);
       }
     } catch (err) {
       setSnackbar({
@@ -101,7 +109,7 @@ const Signup = () => {
     }
   };
 
-  // Function to handle login 
+  // Handle login
   const handleLogin = async () => {
     try {
       const response = await axiosInstance.post("/user/web-login", {
@@ -117,7 +125,6 @@ const Signup = () => {
         });
         localStorage.setItem("token", response.data.data.token);
         navigate("/dashboard", { state: { data: response.data } });
-        // You can navigate to the desired page after successful login
       } else {
         setSnackbar({
           open: true,
@@ -134,7 +141,7 @@ const Signup = () => {
     }
   };
 
-  // Function to handle button click based on isSignIn value
+  // Submit handler
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isSignIn) {
@@ -143,225 +150,209 @@ const Signup = () => {
       handleRegister();
     }
   };
+
   const handleSignIn = (e) => {
     e.preventDefault();
     navigate("/signin");
   };
+
   const handleSignup = (e) => {
     e.preventDefault();
     navigate("/signup");
   };
+
   // Close Snackbar
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
   return (
-    <Box
-      color={"black"}
-      width={!isMobile ? "80%" : "100%"}
-    //   border={"1px solid red"}
-      height={!isMobile ? "50vh" : "60vh"}
-      mt={!isSignIn ? 10 : 17.5}
-      ml={!isMobile ? 10 : 0}
+
+    <Box   sx={{
+       
+        height: "90vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        padding: "20px",
+     
+      }}>
+        <Box
+      sx={{
+        borderRadius: 4,
+        boxShadow: 3,
+        backgroundColor: "#ffffff",
+        padding: "20px",
+     
+      }}
     >
-      <Box>
-        <Typography
-          fontFamily={"Poppins,sans-serif"}
-          fontSize={!isMobile ? "30px" : "20px"}
-          fontWeight={800}
-          ml={!isMobile ? 0 : 7.5}
-        >
-          {isSignIn ? "Hello Again!" : "Hello!"}
-        </Typography>
-        <Typography
-          fontFamily={"Poppins,sans-serif"}
-          fontSize={!isMobile ? "16px" : "12px"}
-          fontWeight={500}
-          ml={!isMobile ? 0 : 7.5}
-        >
-          {isSignIn ? "Welcome Back" : "Sign Up to Get Started"}
-        </Typography>
-      </Box>
-      <Box>
-        {!isSignIn && (
-          <Box
-            width={!isMobile ? "70%" : "60%"}
-            height={!isMobile ? "6vh" : "4vh"}
-            border={"1.5px solid #EEEEEE"}
-            borderRadius={"30px"}
-            mt={2}
-            p={0.5}
-            ml={!isMobile ? 0 : 7.5}
-          >
-            <Box
-              pl={2}
-              pt={0.75}
-              display={"flex"}
-              alignItems={"center"}
-              gap={1}
-            >
-              <PersonIcon sx={{ color: "#EEEEEE" }} />
-              <input
-                placeholder="Full Name"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                style={{
-                  backgroundColor: "transparent",
-                  border: "none",
-                  outline: "none",
-                  color: "black",
-                }}
-                className="custom-placeholder"
-              />
-            </Box>
-          </Box>
-        )}
-        <Box
-          width={!isMobile ? "70%" : "60%"}
-          height={!isMobile ? "6vh" : "4vh"}
-          border={"1.5px solid #EEEEEE"}
-          borderRadius={"30px"}
-          mt={2}
-          p={0.5}
-          ml={!isMobile ? 0 : 7.5}
-        >
-          <Box pl={2} pt={0.75} display={"flex"} alignItems={"center"} gap={1}>
-            <MailOutlineIcon sx={{ color: "#EEEEEE" }} />
-            <input
-              placeholder="Email Address"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                outline: "none",
-                color: "black",
-              }}
-              className="custom-placeholder"
-            />
-          </Box>
-        </Box>
-        <Box
-          width={!isMobile ? "70%" : "60%"}
-          height={!isMobile ? "6vh" : "4vh"}
-          border={"1.5px solid #EEEEEE"}
-          borderRadius={"30px"}
-          mt={2}
-          p={0.5}
-          ml={!isMobile ? 0 : 7.5}
-        >
-          <Box pl={2} pt={0.75} display={"flex"} alignItems={"center"} gap={1}>
-            <LockIcon sx={{ color: "#EEEEEE" }} />
-            <input
-              placeholder="Password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={formData.password}
-              onChange={handleInputChange}
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                outline: "none",
-                color: "black",
-                width: "90%",
-              }}
-              className="custom-placeholder"
-            />
-            {showPassword ? (
-              <VisibilityOffIcon
-                sx={{ color: "#EEEEEE", cursor: "pointer" }}
-                onClick={() => setShowPassword(false)}
-              />
-            ) : (
-              <VisibilityIcon
-                sx={{ color: "#EEEEEE", cursor: "pointer" }}
-                onClick={() => setShowPassword(true)}
-              />
-            )}
-          </Box>
-        </Box>
+      <Typography
+        fontFamily={"Poppins, sans-serif"}
+        fontSize={!isMobile ? "24px" : "20px"}
+        fontWeight={700}
+        textAlign="center"
+        mb={1}
+        color="#1976d2"
+      >
+        {isSignIn ? "Welcome Back!" : "Create Account"}
+      </Typography>
+      <Typography
+        fontFamily={"Poppins, sans-serif"}
+        fontSize={!isMobile ? "14px" : "12px"}
+        fontWeight={500}
+        textAlign="center"
+        mb={3}
+        color="gray"
+      >
+        {isSignIn ? "Log in to continue" : "Sign up to get started"}
+      </Typography>
 
-        {/* Password strength checks */}
-        {!isSignIn && (
-          <Box pl={5} pt={2} pb={2} ml={!isMobile ? 0 : 7.5}>
-            <Typography fontSize={!isMobile ? "12px" : ""}>Password must contain:</Typography>
-            <Box pt={0.25} display={"flex"} alignItems={"center"} gap={1}>
-              <div
-                style={{
-                  height: "10px",
-                  width: "10px",
-                  borderRadius: "50%",
-                  backgroundColor: passwordChecks.hasUppercase
-                    ? "#28a745"
-                    : "#EEEEEE",
-                }}
-              ></div>
-              <Typography fontSize={!isMobile ? "12px" : ""}>Upper case letter</Typography>
-            </Box>
-            <Box pt={0.25} display={"flex"} alignItems={"center"} gap={1}>
-              <div
-                style={{
-                  height: "10px",
-                  width: "10px",
-                  borderRadius: "50%",
-                  backgroundColor: passwordChecks.hasSpecialChar
-                    ? "#28a745"
-                    : "#EEEEEE",
-                }}
-              ></div>
-              <Typography fontSize={!isMobile ? "12px" : ""}>Special Character . -%&!@^</Typography>
-            </Box>
-            <Box pt={0.25} display={"flex"} alignItems={"center"} gap={1}>
-              <div
-                style={{
-                  height: "10px",
-                  width: "10px",
-                  borderRadius: "50%",
-                  backgroundColor: passwordChecks.isValidLength
-                    ? "#28a745"
-                    : "#EEEEEE",
-                }}
-              ></div>
-              <Typography fontSize={!isMobile ? "12px" : ""}>Minimum 6 characters</Typography>
-            </Box>
-          </Box>
-        )}
-
-        {/* Submit Button */}
-        <Box ml={!isMobile ? 0 : 7.5}>
-          <button
-            onClick={handleSubmit}
+      {/* Full Name Input (for Signup) */}
+      {!isSignIn && (
+        <Box
+          mb={2}
+          display="flex"
+          alignItems="center"
+          sx={{
+            border: "1px solid #ddd",
+            borderRadius: "25px",
+            padding: "10px",
+          }}
+        >
+          <PersonIcon sx={{ color: "#1976d2", mr: 1 }} />
+          <input
+            type="text"
+            placeholder="Full Name"
+            name="fullName"
+            value={formData.fullName}
+            onChange={handleInputChange}
             style={{
-              width: !isMobile ? "75%" : "70%",
-              padding: "15px 20px",
-              fontSize: "16px",
-              borderRadius: "30px",
-              backgroundColor: "#0575E6",
-              color: "#fff",
+              backgroundColor: "transparent",
               border: "none",
-              cursor: "pointer",
-              marginTop: "20px",
+              outline: "none",
+              width: "100%",
             }}
-          >
-            {isSignIn ? "Login" : "Register"}
-          </button>
+          />
         </Box>
-        <Box pl={!isMobile ? 7 : 3} ml={!isMobile ? 0 : 7.5}>
-          <p
-            style={{ color: "black", cursor: "pointer",textDecoration:"underline",fontSize:"12px" }}
-            onClick={isSignIn ? handleSignup : handleSignIn}
-          >
-            {isSignIn
-              ? "Not registered yet? Sign up here"
-              : "Already registered? Sign in here"}
-          </p>
-        </Box>
+      )}
+
+      {/* Email Input */}
+      <Box
+        mb={2}
+        display="flex"
+        alignItems="center"
+        sx={{
+          border: "1px solid #ddd",
+          borderRadius: "25px",
+          padding: "10px",
+        }}
+      >
+        <MailOutlineIcon sx={{ color: "#1976d2", mr: 1 }} />
+        <input
+          type="email"
+          placeholder="Email Address"
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          style={{
+            backgroundColor: "transparent",
+            border: "none",
+            outline: "none",
+            width: "100%",
+          }}
+        />
       </Box>
 
-      {/* Snackbar for showing messages */}
+      {/* Password Input */}
+      <Box
+        mb={2}
+        display="flex"
+        alignItems="center"
+        sx={{
+          border: "1px solid #ddd",
+          borderRadius: "25px",
+          padding: "10px",
+        }}
+      >
+        <LockIcon sx={{ color: "#1976d2", mr: 1 }} />
+        <input
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          name="password"
+          value={formData.password}
+          onChange={handleInputChange}
+          style={{
+            backgroundColor: "transparent",
+            border: "none",
+            outline: "none",
+            width: "100%",
+          }}
+        />
+        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+        </IconButton>
+      </Box>
+
+      {/* Password Strength Checker (for Signup) */}
+      {!isSignIn && (
+        <Box>
+          <Typography fontSize="12px" color="gray">
+            Password must contain:
+          </Typography>
+          <Typography
+            fontSize="12px"
+            color={passwordChecks.hasUppercase ? "green" : "gray"}
+          >
+            Uppercase letter
+          </Typography>
+          <Typography
+            fontSize="12px"
+            color={passwordChecks.hasSpecialChar ? "green" : "gray"}
+          >
+            Special character (!@#$%)
+          </Typography>
+          <Typography
+            fontSize="12px"
+            color={passwordChecks.isValidLength ? "green" : "gray"}
+          >
+            Minimum 6 characters
+          </Typography>
+        </Box>
+      )}
+
+      {/* Submit Button */}
+      <Button
+        onClick={handleSubmit}
+        variant="contained"
+        color="primary"
+        fullWidth
+        sx={{
+          marginTop: "20px",
+          padding: "12px",
+          borderRadius: "25px",
+          fontSize: "16px",
+        }}
+      >
+        {isSignIn ? "Login" : "Register"}
+      </Button>
+
+      {/* Toggle Signup/Signin */}
+      <Typography
+        onClick={isSignIn ? handleSignup : handleSignIn}
+        sx={{
+          color: "#1976d2",
+          textAlign: "center",
+          marginTop: "15px",
+          fontSize: "14px",
+          cursor: "pointer",
+        }}
+      >
+        {isSignIn
+          ? "Not registered? Sign up here"
+          : "Already have an account? Sign in here"}
+      </Typography>
+
+      {/* Snackbar for feedback */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
@@ -376,6 +367,9 @@ const Signup = () => {
         </Alert>
       </Snackbar>
     </Box>
+    
+    </Box>
+
   );
 };
 

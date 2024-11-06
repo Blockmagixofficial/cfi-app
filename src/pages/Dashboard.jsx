@@ -1,10 +1,10 @@
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, Avatar, Card, CardContent } from '@mui/material';
 import React from 'react';
-import { useNavigate,useLocation } from 'react-router';
-import img from "../assets/nodp.jpg";
+import { useNavigate, useLocation } from 'react-router';
 import img2 from "../assets/nodp2.jpg";
 import ActionAreaCard from '../components/Card';
-import logo from "../assets/logo.png"
+import logo from "../assets/logo.png";
+
 const banks = [
     { bankName: "State Bank of India", accountNo: "1234*****890" },
     { bankName: "HDFC Bank", accountNo: "5678*****123" },
@@ -22,40 +22,89 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const responseData = location.state?.data.data;
-    // console.log(responseData,"****")
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/");
     };
 
-    // Select a random bank entry
     const randomBank = banks[Math.floor(Math.random() * banks.length)];
 
     return (
         <Box sx={{
-            display: "grid",
-            placeItems: "center"
-        }}
-        >
-            <Box display={"flex"} justifyContent={"space-around"} alignItems={"center"} gap={10} m={2}>
-                <img src={logo} alt={"logo"} height={50} width={50}/>
-                <Button onClick={handleLogout} sx={{ border: "1px solid red",padding:1 }}>Log out</Button>
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: 2,
+            backgroundColor: "#f0f2f5",
+            minHeight: "100vh"
+        }}>
+            {/* Header with Logo and Logout Button */}
+            <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"} width="100%" p={2}>
+                <img src={logo} alt={"logo"} height={50} width={50} />
+                <Button onClick={handleLogout} variant="outlined" color="error" sx={{ borderRadius: "20px", padding: "8px 16px" }}>
+                    Log out
+                </Button>
             </Box>
-            <ActionAreaCard 
-                email={responseData.emailId} 
-                id={responseData.userName} 
-                image={img2} 
-                bankName={randomBank.bankName} 
-                accountNo={randomBank.accountNo} 
-            />
-            <Box>
+
+            {/* Profile Card */}
+            <Card sx={{
+                width: "100%",
+                maxWidth: 400,
+                marginTop: 2,
+                padding: 2,
+                borderRadius: 4,
+                boxShadow: 3,
+                backgroundColor: "#ffffff",
+                textAlign: "center"
+            }}>
+                <Avatar
+                    src={img2}
+                    alt="Profile Picture"
+                    sx={{ width: 80, height: 80, margin: "0 auto" }}
+                />
+                <CardContent>
+                    <Typography variant="h6" sx={{ marginTop: 1 }}>
+                        {responseData.userName}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                        {responseData.emailId}
+                    </Typography>
+                    <Box sx={{ marginTop: 2, textAlign: "left" }}>
+                        <Typography variant="subtitle2" color="textSecondary">
+                            Bank Name:
+                        </Typography>
+                        <Typography variant="body1">
+                            {randomBank.bankName}
+                        </Typography>
+                        <Typography variant="subtitle2" color="textSecondary" sx={{ marginTop: 1 }}>
+                            Account Number:
+                        </Typography>
+                        <Typography variant="body1">
+                            {randomBank.accountNo}
+                        </Typography>
+                    </Box>
+                </CardContent>
+            </Card>
+
+            {/* Pay Money Button */}
+            <Box sx={{ marginTop: 4, width: "100%", maxWidth: 400 }}>
                 <Button
-                 sx={{
-                    border: "1px solid skyblue",
-                    margin:2,
-                    padding:1
-                }}
-                onClick={()=>navigate("/transaction")}>Pay Money</Button>
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={() => navigate("/transaction")}
+                    sx={{
+                        borderRadius: "20px",
+                        padding: "12px 0",
+                        fontSize: "16px",
+                        boxShadow: 3,
+                        backgroundColor: "#1976d2",
+                        '&:hover': { backgroundColor: "#1565c0" }
+                    }}
+                >
+                    Pay Money
+                </Button>
             </Box>
         </Box>
     );

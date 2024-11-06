@@ -7,40 +7,112 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import { useSpring, animated } from "react-spring";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import LockIcon from "@mui/icons-material/Lock";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import { useNavigate } from "react-router";
 
 const TransactionApp = () => {
-  const [screen, setScreen] = useState("amount");
+  const [screen, setScreen] = useState("account");
   const [balance, setBalance] = useState(100);
   const [transactionAmount, setTransactionAmount] = useState(0);
+  const [accountNumber, setAccountNumber] = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
+  const [bankName, setBankName] = useState("");
   const [mpin, setMpin] = useState(["", "", "", ""]);
-  const [loadingMessage, setLoadingMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [currentDate, setCurrentDate] = useState(new Date());
   const inputRefs = useRef([]);
 
   const transactionId = "T2305201058366754628773";
 
-  const screenTransition = useSpring({
-    opacity: screen === "loading" || screen === "success" ? 1 : 0.9,
-    transform:
-      screen === "loading" || screen === "success"
-        ? "translateY(0)"
-        : "translateY(-20px)",
-    config: { tension: 220, friction: 30 },
-  });
+  // List of dummy names
+  const dummyNames = [
+    "Mehul Kumar Jatiya",
+    "Rajesh Gupta",
+    "Anita Sharma",
+    "Sunita Mehta",
+    "Ravi Verma",
+    "Priya Singh",
+    "Anil Kumar",
+    "Sangeeta Reddy",
+    "Vikas Deshmukh",
+    "Kiran Bedi",
+  ];
+
+  // List of banks
+  const banks = [
+    {
+      bankName: "State Bank of India",
+      accountNo: "1234*****890",
+      ifsc: "SBI0000123",
+    },
+    { bankName: "HDFC Bank", accountNo: "5678*****123", ifsc: "HDFC0000123" },
+    { bankName: "ICICI Bank", accountNo: "478*****120", ifsc: "ICIC0000123" },
+    {
+      bankName: "Bank of Baroda",
+      accountNo: "1357*****246",
+      ifsc: "BARB0000123",
+    },
+    {
+      bankName: "Punjab National Bank",
+      accountNo: "2468*****135",
+      ifsc: "PUNB0000123",
+    },
+    {
+      bankName: "Bank of America",
+      accountNo: "9876*****543",
+      ifsc: "BOFA0000123",
+    },
+    { bankName: "Wells Fargo", accountNo: "8765*****432", ifsc: "WFBI0000123" },
+    { bankName: "Chase Bank", accountNo: "7654*****321", ifsc: "CHAS0000123" },
+    { bankName: "Citibank", accountNo: "6543*****210", ifsc: "CITI0000123" },
+    { bankName: "Goldman Sachs", accountNo: "5432*****109", ifsc: "GS0000123" },
+  ];
+
+  // Function to get a random name from the list
+  const getRandomName = () => {
+    const randomIndex = Math.floor(Math.random() * dummyNames.length);
+    return dummyNames[randomIndex];
+  };
+
+  // Function to get a random bank from the list
+  const getRandomBank = () => {
+    const randomIndex = Math.floor(Math.random() * banks.length);
+    return banks[randomIndex];
+  };
+
+  const handleAccountNumberInput = (e) => {
+    const value = e.target.value;
+    setAccountNumber(value);
+
+    if (value.length === 10) {
+      setLoading(true);
+      setLoadingMessage("Verifying Account Number...");
+
+      setTimeout(() => {
+        const randomBank = getRandomBank(); // Get a random bank
+        setLoading(false);
+        setAccountHolder(getRandomName()); // Set a random account holder's name
+        setBankName(randomBank.bankName);
+        setIfscCode(randomBank.ifsc); // Set a random IFSC code
+        setScreen("verified");
+      }, 2000);
+    } else {
+      setAccountHolder("");
+      setIfscCode("");
+      setBankName("");
+    }
+  };
 
   const handleAmountProceed = () => {
-    if (transactionAmount <= balance && transactionAmount > 0) {
-      setScreen("mpin");
-    } else {
+    if (transactionAmount <= 0 || transactionAmount > balance) {
       alert("Insufficient balance or invalid amount!");
+    } else {
+      setScreen("mpin");
     }
   };
 
@@ -79,15 +151,20 @@ const TransactionApp = () => {
 
   const handleSendAgain = () => {
     setTransactionAmount(0);
-    setScreen("amount");
+    setAccountNumber("");
+    setAccountHolder("");
+    setIfscCode("");
+    setBankName("");
+    setScreen("account");
   };
 
+  const navigate = useNavigate();
   return (
     <Container
       maxWidth="xs"
       sx={{
         textAlign: "center",
-        height: "100vh",
+        height: "90vh",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -111,8 +188,121 @@ const TransactionApp = () => {
         </Typography>
       </Box>
 
+      {screen === "account" && (
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Enter Account Number
+          </Typography>
+          <TextField
+            fullWidth
+            type="text"
+            label="Account Number"
+            variant="outlined"
+            value={accountNumber}
+            onChange={handleAccountNumberInput}
+            sx={{
+              mb: 3,
+              borderRadius: "10px",
+              "& .MuiOutlinedInput-root": { borderRadius: "10px" },
+            }}
+            inputProps={{
+              maxLength: 10,
+              pattern: "[0-9]*",
+            }}
+          />
+          {loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+              <CircularProgress color="primary" size={24} />
+              <Typography variant="body2" sx={{ ml: 1 }}>
+                {loadingMessage}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      )}
+
+      {screen === "verified" && (
+        <Box>
+          <CheckCircleIcon sx={{ color: "green", fontSize: 50 }} />
+          <Typography variant="h6" sx={{ color: "purple", mt: 1 }}>
+            Bank Account Valid
+          </Typography>
+          <Box sx={{ mt: 2, textAlign: "left", px: 3 }}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Typography variant="body2" color="textSecondary">
+                Name at Bank
+              </Typography>
+              <Typography variant="body1" sx={{ color: "black" }}>
+                {accountHolder}
+              </Typography>
+              <CheckCircleIcon sx={{ color: "green", fontSize: 16 }} />
+            </Box>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              mt={1}
+            >
+              <Typography variant="body2" color="textSecondary">
+                Account Number
+              </Typography>
+              <Typography variant="body1" sx={{ color: "black" }}>
+                {accountNumber}
+              </Typography>
+              <CheckCircleIcon sx={{ color: "green", fontSize: 16 }} />
+            </Box>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              mt={1}
+            >
+              <Typography variant="body2" color="textSecondary">
+                Bank
+              </Typography>
+              <Typography variant="body1" sx={{ color: "black" }}>
+                {bankName}
+              </Typography>
+              <CheckCircleIcon sx={{ color: "green", fontSize: 16 }} />
+            </Box>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              mt={1}
+            >
+              <Typography variant="body2" color="textSecondary">
+                IFSC
+              </Typography>
+              <Typography variant="body1" sx={{ color: "black" }}>
+                {ifscCode}
+              </Typography>
+              <CheckCircleIcon sx={{ color: "green", fontSize: 16 }} />
+            </Box>
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={() => setScreen("amount")}
+            sx={{
+              mt: 3,
+              borderRadius: "10px",
+              fontSize: "16px",
+              padding: "10px 0",
+            }}
+          >
+            Proceed
+          </Button>
+        </Box>
+      )}
+
       {screen === "amount" && (
-        <animated.div style={screenTransition}>
+        <Box>
           <Typography variant="h6" gutterBottom>
             Enter Transaction Amount
           </Typography>
@@ -128,7 +318,6 @@ const TransactionApp = () => {
               borderRadius: "10px",
               "& .MuiOutlinedInput-root": { borderRadius: "10px" },
             }}
-            InputProps={{ sx: { borderRadius: "10px" } }}
           />
           <Button
             variant="contained"
@@ -139,11 +328,11 @@ const TransactionApp = () => {
           >
             Proceed
           </Button>
-        </animated.div>
+        </Box>
       )}
 
       {screen === "mpin" && (
-        <animated.div style={screenTransition}>
+        <Box>
           <Box
             sx={{
               display: "flex",
@@ -185,7 +374,7 @@ const TransactionApp = () => {
               />
             ))}
           </Box>
-        </animated.div>
+        </Box>
       )}
 
       {screen === "loading" && (
@@ -205,15 +394,18 @@ const TransactionApp = () => {
       )}
 
       {screen === "success" && (
-        <animated.div style={screenTransition}>
+        <Box>
+
+            
           <Typography variant="h6" align="center" sx={{ mb: 2 }}>
             Transaction Successful
           </Typography>
+
+      
           <Typography variant="body2" color="textSecondary" align="center">
             {currentDate.toLocaleDateString()} at{" "}
             {currentDate.toLocaleTimeString()}
           </Typography>
-
           <Box
             sx={{
               display: "flex",
@@ -237,7 +429,6 @@ const TransactionApp = () => {
               <ContentCopyIcon fontSize="small" />
             </Box>
           </Box>
-
           <Box
             sx={{
               display: "flex",
@@ -251,10 +442,10 @@ const TransactionApp = () => {
             <Box>
               <Typography variant="subtitle2">Paid to</Typography>
               <Typography variant="body2" color="textSecondary">
-                RAMESH NAYAK MUDAVAT
+                {accountHolder}
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                9381978288
+                {accountNumber}
               </Typography>
             </Box>
             <Box textAlign="right">
@@ -271,38 +462,13 @@ const TransactionApp = () => {
             </Box>
           </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              backgroundColor: "#f8f9fa",
-              p: 2,
-              borderRadius: 2,
-              mt: 2,
-            }}
-          >
-            <Box>
-              <Typography variant="subtitle2">Debited from</Typography>
-              <Typography variant="body2" color="textSecondary">
-                XXXXXXXX8289
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                UTR: 350679646058
-              </Typography>
-            </Box>
-            <Box textAlign="right">
-              <Typography variant="subtitle2" sx={{ color: "#5e72eb" }}>
-                ₹{transactionAmount.toFixed(2)}
-              </Typography>
-              <Button
-                variant="text"
-                sx={{ color: "#5e72eb", fontSize: "0.75rem" }}
-              >
-                SPLIT EXPENSE
-              </Button>
-            </Box>
-          </Box>
-        </animated.div>
+          <Button
+        color="primary"
+        onClick={() => navigate("/dashboard")}
+      >
+        Back to Dashboard
+      </Button>
+        </Box>
       )}
     </Container>
   );
