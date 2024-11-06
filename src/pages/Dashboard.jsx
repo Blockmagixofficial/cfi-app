@@ -1,8 +1,7 @@
 import { Box, Button, Typography, Avatar, Card, CardContent } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import img2 from "../assets/nodp2.jpg";
-import ActionAreaCard from '../components/Card';
 import logo from "../assets/logo.png";
 
 const banks = [
@@ -21,14 +20,37 @@ const banks = [
 const Dashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const responseData = location.state?.data.data;
+    const [responseData, setResponseData] = useState(null);
+
+    useEffect(() => {
+        // Check if location.state exists
+        const data = location.state?.data?.data;
+
+        if (data) {
+            // Store data in localStorage if available
+            localStorage.setItem("responseData", JSON.stringify(data));
+            setResponseData(data);
+        } else {
+            // Retrieve from localStorage if location.state is not available
+            const storedData = localStorage.getItem("responseData");
+            if (storedData) {
+                setResponseData(JSON.parse(storedData));
+            }
+        }
+    }, [location.state]);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("responseData"); // Clear stored responseData on logout
         navigate("/");
     };
 
     const randomBank = banks[Math.floor(Math.random() * banks.length)];
+
+    if (!responseData) {
+        // Optional: Redirect to login or display a message if no responseData is found
+        return <Typography>Loading...</Typography>;
+    }
 
     return (
         <Box sx={{

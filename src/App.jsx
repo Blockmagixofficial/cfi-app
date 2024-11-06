@@ -3,7 +3,6 @@ import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import TransactionApp from "./pages/Transactions";
-// import './App.css'
 
 function App() {
   const navigate = useNavigate();
@@ -19,22 +18,26 @@ function App() {
     if (!token && restrictedRoutes.includes(location.pathname)) {
       navigate("/signin");
     }
+
+    // Redirect to /dashboard if token exists and user visits the root route
+    if (token && location.pathname === "/") {
+      navigate("/dashboard");
+    }
   }, [location, navigate]);
+
   return (
-    <>
-     <Routes>
-        {/* Root route accessible to everyone */}
-        <Route path="/" element={<Signup />} />
-        {/* Dashboard and Payments are restricted routes */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        {/* <Route path="/payments" element={<PaymentPage />} /> */}
-        {/* Sign Up and Sign In routes */}
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signin" element={<Signup />} />
-        <Route path="transaction" element={<TransactionApp/>}/>
-      </Routes>
-    </>
-  )
+    <Routes>
+      {/* Root route accessible to everyone */}
+      <Route path="/" element={<Signup />} />
+      {/* Dashboard and Payments are restricted routes */}
+      <Route path="/dashboard" element={<Dashboard />} />
+      {/* <Route path="/payments" element={<PaymentPage />} /> */}
+      {/* Sign Up and Sign In routes */}
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/signin" element={<Signup />} />
+      <Route path="/transaction" element={<TransactionApp />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
