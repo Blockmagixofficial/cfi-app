@@ -54,7 +54,8 @@ const Dashboard = () => {
                     border: "1px solid skyblue",
                     margin:2,
                     padding:1
-                }}>Pay Money</Button>
+                }}
+                onClick={()=>navigate("/transaction")}>Pay Money</Button>
             </Box>
         </Box>
     );
