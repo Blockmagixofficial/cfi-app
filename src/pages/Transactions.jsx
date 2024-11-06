@@ -6,6 +6,8 @@ import {
   Typography,
   Box,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
@@ -25,6 +27,7 @@ const TransactionApp = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar state
   const inputRefs = useRef([]);
 
   const transactionId = "T2305201058366754628773";
@@ -110,7 +113,7 @@ const TransactionApp = () => {
 
   const handleAmountProceed = () => {
     if (transactionAmount <= 0 || transactionAmount > balance) {
-      alert("Insufficient balance or invalid amount!");
+      setSnackbarOpen(true); // Show snackbar if the amount is invalid
     } else {
       setScreen("mpin");
     }
@@ -141,6 +144,10 @@ const TransactionApp = () => {
         setMpin(["", "", "", ""]);
       }, 3000);
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   const handleCopyTransactionId = () => {
@@ -191,12 +198,12 @@ const TransactionApp = () => {
       {screen === "account" && (
         <Box>
           <Typography variant="h6" gutterBottom>
-            Enter Account Number
+            Enter UCPI ID
           </Typography>
           <TextField
             fullWidth
             type="text"
-            label="Account Number"
+            label="UCPI ID"
             variant="outlined"
             value={accountNumber}
             onChange={handleAccountNumberInput}
@@ -395,13 +402,10 @@ const TransactionApp = () => {
 
       {screen === "success" && (
         <Box>
-
-            
           <Typography variant="h6" align="center" sx={{ mb: 2 }}>
             Transaction Successful
           </Typography>
 
-      
           <Typography variant="body2" color="textSecondary" align="center">
             {currentDate.toLocaleDateString()} at{" "}
             {currentDate.toLocaleTimeString()}
@@ -462,14 +466,23 @@ const TransactionApp = () => {
             </Box>
           </Box>
 
-          <Button
-        color="primary"
-        onClick={() => navigate("/dashboard")}
-      >
-        Back to Dashboard
-      </Button>
+          <Button color="primary" onClick={() => navigate("/dashboard")}>
+            Back to Dashboard
+          </Button>
         </Box>
       )}
+
+      {/* Snackbar for invalid amount */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
+          Invalid amount! Please enter a valid transaction amount.
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
