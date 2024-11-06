@@ -199,7 +199,7 @@ const TransactionApp = () => {
       >
         <AccountBalanceWalletIcon color="primary" fontSize="large" />
         <Typography variant="h4" sx={{ ml: 1, color: "primary.main" }}>
-          ₹{balance.toFixed(2)}
+          ₹{balance?.toFixed(2)}
         </Typography>
       </Box>
 
@@ -462,7 +462,7 @@ const TransactionApp = () => {
             </Box>
             <Box textAlign="right">
               <Typography variant="subtitle2" sx={{ color: "#5e72eb" }}>
-                ₹{transactionAmount.toFixed(2)}
+                ₹{transactionAmount}
               </Typography>
               <Button
                 variant="text"
