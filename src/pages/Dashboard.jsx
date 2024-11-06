@@ -22,7 +22,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const responseData = location.state?.data.data;
-    console.log(responseData,"****")
+    // console.log(responseData,"****")
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/");
@@ -35,7 +35,8 @@ const Dashboard = () => {
         <Box sx={{
             display: "grid",
             placeItems: "center"
-        }}>
+        }}
+        >
             <Box display={"flex"} justifyContent={"space-around"} alignItems={"center"} gap={10} m={2}>
                 <img src={logo} alt={"logo"} height={50} width={50}/>
                 <Button onClick={handleLogout} sx={{ border: "1px solid red",padding:1 }}>Log out</Button>
