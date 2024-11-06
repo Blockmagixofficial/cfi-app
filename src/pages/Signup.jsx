@@ -116,7 +116,7 @@ const Signup = () => {
           severity: "success",
         });
         localStorage.setItem("token", response.data.data.token);
-        navigate("/dashboard");
+        navigate("/dashboard", { state: { data: response.data } });
         // You can navigate to the desired page after successful login
       } else {
         setSnackbar({
