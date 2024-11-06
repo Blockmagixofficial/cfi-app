@@ -1,22 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { TextField, Button, Container, Typography, Box, IconButton, CircularProgress } from '@mui/material';
+import React, { useState, useRef } from 'react';
+import { TextField, Button, Container, Typography, Box, CircularProgress } from '@mui/material';
 import { useSpring, animated } from 'react-spring';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 const TransactionApp = () => {
   const [screen, setScreen] = useState('amount');
   const [balance, setBalance] = useState(100);
   const [transactionAmount, setTransactionAmount] = useState(0);
   const [mpin, setMpin] = useState(['', '', '', '']);
-  const [showMpin, setShowMpin] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
 
   const inputRefs = useRef([]);
 
@@ -28,12 +26,6 @@ const TransactionApp = () => {
     config: { tension: 220, friction: 30 },
   });
 
-  useEffect(() => {
-    if (screen === 'success') {
-      setCurrentDate(new Date());
-    }
-  }, [screen]);
-
   const handleAmountProceed = () => {
     if (transactionAmount <= balance && transactionAmount > 0) {
       setScreen('mpin');
@@ -42,7 +34,7 @@ const TransactionApp = () => {
     }
   };
 
-  const handleMpinInput = (value, index) => {
+  const handleMPINInput = (value, index) => {
     const newMpin = [...mpin];
     newMpin[index] = value;
     setMpin(newMpin);
@@ -69,12 +61,15 @@ const TransactionApp = () => {
     }
   };
 
-  const toggleShowMpin = () => setShowMpin(!showMpin);
-
   const handleCopyTransactionId = () => {
     navigator.clipboard.writeText(transactionId).then(() => {
       alert("Transaction ID copied to clipboard");
     });
+  };
+
+  const handleSendAgain = () => {
+    setTransactionAmount(0);
+    setScreen('amount');
   };
 
   return (
@@ -132,20 +127,23 @@ const TransactionApp = () => {
 
       {screen === 'mpin' && (
         <animated.div style={screenTransition}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+            <LockIcon color="primary" fontSize="large" />
+          </Box>
           <Typography variant="h6" gutterBottom>
-            Enter UPI PIN
+            Enter Secure PIN
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 3 }}>
             {mpin.map((digit, index) => (
               <TextField
                 key={index}
-                type={showMpin ? 'text' : 'password'}
+                type="password"
                 inputProps={{
                   maxLength: 1,
                   style: { textAlign: 'center', fontSize: '24px', padding: '8px' },
                 }}
                 value={digit}
-                onChange={(e) => handleMpinInput(e.target.value, index)}
+                onChange={(e) => handleMPINInput(e.target.value, index)}
                 ref={(el) => (inputRefs.current[index] = el)}
                 sx={{
                   width: '50px',
@@ -153,13 +151,9 @@ const TransactionApp = () => {
                     borderRadius: '8px',
                     borderColor: 'primary.main',
                   },
-                  mx: 0.5,
                 }}
               />
             ))}
-            <IconButton onClick={toggleShowMpin} sx={{ ml: 1 }}>
-              {showMpin ? <VisibilityOffIcon /> : <VisibilityIcon />}
-            </IconButton>
           </Box>
         </animated.div>
       )}
@@ -179,7 +173,7 @@ const TransactionApp = () => {
             Transaction Successful
           </Typography>
           <Typography variant="body2" color="textSecondary" align="center">
-            {currentDate.toLocaleDateString()} at {currentDate.toLocaleTimeString()}
+      {currentDate.toLocaleDateString()} at {currentDate.toLocaleTimeString()}
           </Typography>
 
           <Box
@@ -206,8 +200,26 @@ const TransactionApp = () => {
               <Typography variant="subtitle2" sx={{ color: '#5e72eb' }}>
                 ₹{transactionAmount.toFixed(2)}
               </Typography>
-              <Button variant="text" sx={{ color: '#5e72eb', fontSize: '0.75rem' }} onClick={() => setScreen('amount')}>
+              <Button variant="text" sx={{ color: '#5e72eb', fontSize: '0.75rem' }} onClick={handleSendAgain}>
                 SEND AGAIN
+              </Button>
+            </Box>
+          </Box>
+
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f8f9fa', p: 2, borderRadius: 2, mt: 2 }}
+          >
+            <Box>
+              <Typography variant="subtitle2">Debited from</Typography>
+              <Typography variant="body2" color="textSecondary">XXXXXXXX8289</Typography>
+              <Typography variant="body2" color="textSecondary">UTR: 350679646058</Typography>
+            </Box>
+            <Box textAlign="right">
+              <Typography variant="subtitle2" sx={{ color: '#5e72eb' }}>
+                ₹{transactionAmount.toFixed(2)}
+              </Typography>
+              <Button variant="text" sx={{ color: '#5e72eb', fontSize: '0.75rem' }}>
+                SPLIT EXPENSE
               </Button>
             </Box>
           </Box>
