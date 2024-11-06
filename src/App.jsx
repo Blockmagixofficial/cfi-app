@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import TransactionApp from "./pages/Transactions";
 // import './App.css'
 
 function App() {
@@ -30,7 +31,7 @@ function App() {
         {/* Sign Up and Sign In routes */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signup />} />
-       
+        <Route path="transaction" element={<TransactionApp/>}/>
       </Routes>
     </>
   )

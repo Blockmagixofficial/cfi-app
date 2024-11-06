@@ -22,7 +22,7 @@ const TransactionApp = () => {
   const [mpin, setMpin] = useState(["", "", "", ""]);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [currentDate, setCurrentDate] = useState(new Date());
   const inputRefs = useRef([]);
 
   const transactionId = "T2305201058366754628773";
