@@ -11,7 +11,7 @@ export default function ActionAreaCard({email,id,image,bankName,accountNo}) {
       <CardActionArea>
         <CardMedia
           component="img"
-          height="240"
+          height="330"
           image={image}
           alt="green iguana"
         />

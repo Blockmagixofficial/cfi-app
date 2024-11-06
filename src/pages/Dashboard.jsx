@@ -2,6 +2,7 @@ import { Box, Button, Typography } from '@mui/material';
 import React from 'react';
 import { useNavigate,useLocation } from 'react-router';
 import img from "../assets/nodp.jpg";
+import img2 from "../assets/nodp2.jpg";
 import ActionAreaCard from '../components/Card';
 
 const banks = [
@@ -42,10 +43,18 @@ const Dashboard = () => {
             <ActionAreaCard 
                 email={responseData.emailId} 
                 id={responseData.userName} 
-                image={img} 
+                image={img2} 
                 bankName={randomBank.bankName} 
                 accountNo={randomBank.accountNo} 
             />
+            <Box>
+                <Button
+                 sx={{
+                    border: "1px solid skyblue",
+                    margin:2,
+                    padding:1
+                }}>Pay Money</Button>
+            </Box>
         </Box>
     );
 };
