@@ -3,6 +3,11 @@ import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import TransactionApp from "./pages/Transactions";
+import RecentActivity from "./pages/RecentActivity";
+import AmountEntry from "./pages/AmountEntry";
+import BankSelectionDark from "./pages/BankSelection";
+import PaymentConfirmation from "./pages/PaymentConfirmation";
+import PaymentScreen from "./pages/PaymentScreen";
 
 function App() {
   const navigate = useNavigate();
@@ -36,6 +41,12 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/signin" element={<Signup />} />
       <Route path="/transaction" element={<TransactionApp />} />
+      <Route path="/recent-activity" element={<RecentActivity />} />
+      <Route path="/amount-entry/:name" element={<AmountEntry />} />
+      <Route path="/bank-selection" element={<BankSelectionDark />} />
+      <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
+      <Route path="/payment" element={<PaymentScreen />} />
+
     </Routes>
   );
 }
