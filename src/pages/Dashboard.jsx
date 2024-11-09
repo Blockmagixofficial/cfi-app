@@ -98,7 +98,7 @@ const Dashboard = () => {
             sx={{ width: 50, height: 50 }}
           />
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6">{userInfo?.firstName}</Typography>
+            <Typography variant="h6">{userInfo?.name}</Typography>
             <Typography variant="body2" color="textSecondary">
               {userInfo?.ucpiId}
             </Typography>

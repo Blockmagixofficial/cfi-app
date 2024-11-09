@@ -92,13 +92,7 @@ const Signup = () => {
         password: formData.password,
       });
 
-      if (response.data && response.data.success) {
-        dispatch(
-          setUser({
-            userInfo: response.data.data, 
-          })
-        );
-      }
+   
 
       if (response.data && response.data.success) {
         setSnackbar({
@@ -134,6 +128,14 @@ const Signup = () => {
           severity: "success",
         });
         localStorage.setItem("token", response.data.data.token);
+
+        if (response.data && response.data.success) {
+          dispatch(
+            setUser({
+              userInfo: response.data.data, 
+            })
+          );
+        }
         
         navigate("/dashboard", { state: { data: response.data } });
       } else {
