@@ -95,12 +95,10 @@ const Signup = () => {
       if (response.data && response.data.success) {
         dispatch(
           setUser({
-            user: response.data.data,
+            userInfo: response.data.data, 
           })
         );
       }
-
-   
 
       if (response.data && response.data.success) {
         setSnackbar({

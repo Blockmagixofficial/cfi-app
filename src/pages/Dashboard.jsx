@@ -47,7 +47,8 @@ const bounce = keyframes`
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const userInfo = useSelector((state) => state.user);
+  const userInfo = useSelector((state) => state.user.userInfo);
+
   console.log("userInfo", userInfo);
   const handleNavigation = () => {
     navigate("/recent-activity");
@@ -92,14 +93,14 @@ const Dashboard = () => {
       >
         <Box display="flex" alignItems="center" gap={2}>
           <Avatar
-            src={userInfo?.user?.profileUrl}
+            src={userInfo?.profileUrl}
             alt="Avatar"
             sx={{ width: 50, height: 50 }}
           />
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6">{userInfo?.user?.firstName}</Typography>
+            <Typography variant="h6">{userInfo?.firstName}</Typography>
             <Typography variant="body2" color="textSecondary">
-              {userInfo?.user?.ucpiId}
+              {userInfo?.ucpiId}
             </Typography>
           </Box>
         </Box>
