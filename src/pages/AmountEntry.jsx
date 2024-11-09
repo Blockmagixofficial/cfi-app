@@ -80,35 +80,20 @@ const AmountEntry = () => {
           src={userData.profileUrl}
           sx={{ width: 80, height: 80, bgcolor: "#FFD700", mb: 1 }}
         >
-          {!userData.profileUrl && userData.name.charAt(0)}
+          {!userData?.profileUrl && userData?.name?.charAt(0)}
         </Avatar>
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          {userData.bankDetails.name}
+          {userData?.bankDetails?.name}
         </Typography>
         <Typography variant="body2" >
-          {userData.ucpiId} 
+          {userData?.ucpiId} 
         </Typography>
         <Typography variant="body2" >
           {userData.bankDetails?.bankName} - Linked on UPI
         </Typography>
       </Box>
 
-      {/* Amount and Currency Selection */}
-      {/* <Box display="flex" alignItems="center" mb={2} gap={1}>
-        <SmallSelect
-          value={currency}
-          onChange={(e) => setCurrency(e.target.value)}
-          variant="outlined"
-          input={<InputBase />}
-        >
-          <MenuItem value="INR">INR</MenuItem>
-          <MenuItem value="USDT">USDT</MenuItem>
-          <MenuItem value="USDC">USDC</MenuItem>
-        </SmallSelect>
-        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#ffffff" }}>
-          {currency}
-        </Typography>
-      </Box> */}
+     
 
       {/* Display Currency Symbol with Amount */}
       <Typography variant="h3" align="center" sx={{ fontWeight: "bold", ml: 1, color: "#ffffff" }}>
