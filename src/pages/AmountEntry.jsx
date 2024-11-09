@@ -11,7 +11,7 @@ import {
   InputBase,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { styled } from "@mui/system";
 
 // Styled small select component
@@ -29,7 +29,10 @@ const SmallSelect = styled(Select)({
 
 const AmountEntry = () => {
   const { name } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
+  
+  const userData = location.state?.userData || {}; // Access userData passed through navigation
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [currency, setCurrency] = useState("INR"); // Default currency
@@ -63,35 +66,35 @@ const AmountEntry = () => {
         </IconButton>
       </Box>
 
-      {/* Profile Pictures and Text */}
-      <Box display="flex" flexDirection="column" alignItems="center" mb={4}>
-        <Box display="flex" alignItems="center" mb={2}>
-          <Avatar
-            sx={{
-              width: 60,
-              height: 60,
-              marginRight: 1,
-              border: "2px solid #fff",
-            }}
-          >
-            S
-          </Avatar>
-          <Typography sx={{ fontSize: 24, fontWeight: "bold", mx: 1 }}>→</Typography>
-          <Avatar
-            sx={{
-              width: 60,
-              height: 60,
-              marginLeft: 1,
-              border: "2px solid #fff",
-            }}
-          >
-            {name.charAt(0).toUpperCase()}
-          </Avatar>
-        </Box>
-        <Typography variant="h6">Paying {name}</Typography>
+      {/* User Details */}
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        sx={{
+          padding: 2,
+          mb: 4,
+        }}
+      >
+        <Avatar
+          src={userData.profileUrl}
+          sx={{ width: 80, height: 80, bgcolor: "#FFD700", mb: 1 }}
+        >
+          {!userData.profileUrl && userData.name.charAt(0)}
+        </Avatar>
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          {userData.bankDetails.name}
+        </Typography>
+        <Typography variant="body2" >
+          {userData.ucpiId} 
+        </Typography>
+        <Typography variant="body2" >
+          {userData.bankDetails?.bankName} - Linked on UPI
+        </Typography>
       </Box>
 
-      <Box display="flex" alignItems="center" mb={2} gap={1}>
+      {/* Amount and Currency Selection */}
+      {/* <Box display="flex" alignItems="center" mb={2} gap={1}>
         <SmallSelect
           value={currency}
           onChange={(e) => setCurrency(e.target.value)}
@@ -105,7 +108,7 @@ const AmountEntry = () => {
         <Typography variant="h4" sx={{ fontWeight: "bold", color: "#ffffff" }}>
           {currency}
         </Typography>
-      </Box>
+      </Box> */}
 
       {/* Display Currency Symbol with Amount */}
       <Typography variant="h3" align="center" sx={{ fontWeight: "bold", ml: 1, color: "#ffffff" }}>

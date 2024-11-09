@@ -20,11 +20,18 @@ import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Slider from "react-slick";
 import { css, keyframes } from "@emotion/react";
-import img2 from "../assets/nodp2.jpg";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router";
-
+import { useSelector } from "react-redux";
+import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
+import PersonIcon from "@mui/icons-material/Person";
+import img1 from "../assets/qrc.png";
+import img2 from "../assets/contact.png";
+import img3 from "../assets/bank.png";
+import img4 from "../assets/ucpi.png";
+import SearchIcon from "@mui/icons-material/Search";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 // Animation for bounce effect
 const bounce = keyframes`
   0%, 20%, 50%, 80%, 100% {
@@ -40,6 +47,8 @@ const bounce = keyframes`
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const userInfo = useSelector((state) => state.user);
+  console.log("userInfo", userInfo);
   const handleNavigation = () => {
     navigate("/recent-activity");
   };
@@ -54,25 +63,11 @@ const Dashboard = () => {
     autoplaySpeed: 3000,
   };
 
+
   const paymentHistory = [
-    {
-      name: "Tushar",
-      transaction: "Paid at 7:30PM",
-      amount: "300",
-      from: "ICON",
-    },
-    {
-      name: "Peter",
-      transaction: "Paid at 6:30PM",
-      amount: "800",
-      from: "ICON",
-    },
-    {
-      name: "Rama",
-      transaction: "Received at 4:00PM",
-      amount: "1000",
-      from: "ICON",
-    },
+    { name: "Vashi Akhtar", transactionTime: "Today, 02:36 PM", amount: "- ₹80", from: "Axis", iconColor: "#90caf9" },
+    { name: "Peter Johnson", transactionTime: "Yesterday, 01:15 PM", amount: "- ₹150", from: "HDFC", iconColor: "#ffcc80" },
+    { name: "Rama Devi", transactionTime: "02 Nov, 10:00 AM", amount: "+ ₹200", from: "SBI", iconColor: "#c5e1a5" },
   ];
 
   return (
@@ -82,8 +77,9 @@ const Dashboard = () => {
         flexDirection: "column",
         alignItems: "center",
         padding: 2,
+        pb:0,
         backgroundColor: "#f5f5f5",
-        minHeight: "100vh",
+        minHeight: "100%",
       }}
     >
       {/* Header */}
@@ -94,12 +90,18 @@ const Dashboard = () => {
         width="100%"
         p={2}
       >
-        <Avatar src={img2} alt="Avatar" sx={{ width: 50, height: 50 }} />
-        <Box sx={{ textAlign: "center", flexGrow: 1 }}>
-          <Typography variant="h6">Ashwini</Typography>
-          <Typography variant="body2" color="textSecondary">
-            UCPI-ID: 12345
-          </Typography>
+        <Box display="flex" alignItems="center" gap={2}>
+          <Avatar
+            src={userInfo?.user?.profileUrl}
+            alt="Avatar"
+            sx={{ width: 50, height: 50 }}
+          />
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="h6">{userInfo?.user?.firstName}</Typography>
+            <Typography variant="body2" color="textSecondary">
+              {userInfo?.user?.ucpiId}
+            </Typography>
+          </Box>
         </Box>
         <IconButton>
           <Search />
@@ -179,128 +181,151 @@ const Dashboard = () => {
           mt: 3,
           p: 2,
           borderRadius: 4,
-          boxShadow: 3,
           backgroundColor: "#ffffff",
         }}
       >
-        <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+        <Typography
+          variant="h6"
+          align="left"
+          sx={{ mb: 2, fontWeight: "bold" }}
+        >
           UCPI Money Transfers
         </Typography>
         <Grid container spacing={2} justifyContent="center">
           <Grid item>
-            <Button
-              variant="contained"
+            <Box
               onClick={handleNavigation}
-              startIcon={<QrCodeScannerIcon />}
               sx={{
-                backgroundColor: "#1976d2",
-                color: "#fff",
-                borderRadius: "8px",
-                padding: "10px 15px",
-                fontWeight: "bold",
-                "&:hover": { backgroundColor: "#115293" },
+                display: "flex",
+                flexDirection: "column",
+                color: "#1976d2",
+                textAlign: "center",
               }}
             >
-              SCAN & PAY
-            </Button>
+              <img src={img1} style={{ width: "65px" }} />
+              <Typography variant="body2">Scan &  <br /> Pay</Typography>
+            </Box>
           </Grid>
           <Grid item>
-            <Button
-              variant="contained"
+            <Box
               onClick={handleNavigation}
-              startIcon={<AccountBalanceWalletIcon />}
               sx={{
-                backgroundColor: "#1976d2",
-                color: "#fff",
-                borderRadius: "8px",
-                padding: "10px 15px",
-                fontWeight: "bold",
-                "&:hover": { backgroundColor: "#115293" },
+                display: "flex",
+                flexDirection: "column",
+                color: "#1976d2",
+                textAlign: "center",
               }}
             >
-              PAY TO UPI ID
-            </Button>
+              <img src={img2} style={{ width: "65px" }} />
+              <Typography variant="body2">Pay <br /> Contact</Typography>
+            </Box>
           </Grid>
           <Grid item>
-            <Button
-              variant="contained"
+            <Box
               onClick={handleNavigation}
-              startIcon={<AccountBalanceIcon />}
               sx={{
-                backgroundColor: "#1976d2",
-                color: "#fff",
-                borderRadius: "8px",
-                padding: "10px 15px",
-                fontWeight: "bold",
-                "&:hover": { backgroundColor: "#115293" },
+                display: "flex",
+                flexDirection: "column",
+                color: "#1976d2",
+                textAlign: "center",
               }}
             >
-              BANK TRANSFER
-            </Button>
+              <img src={img3} style={{ width: "65px" }} />
+              <Typography variant="body2">Bank <br /> Transfer</Typography>
+            </Box>
           </Grid>
           <Grid item>
-            <Button
-              variant="contained"
+            <Box
               onClick={handleNavigation}
-              startIcon={<SettingsIcon />}
               sx={{
-                backgroundColor: "#1976d2",
-                color: "#fff",
-                borderRadius: "8px",
-                padding: "10px 15px",
-                fontWeight: "bold",
-                "&:hover": { backgroundColor: "#115293" },
+                display: "flex",
+                flexDirection: "column",
+                color: "#1976d2",
+                textAlign: "center",
               }}
             >
-              MANAGE BANK
-            </Button>
+              <img src={img4} style={{ width: "65px" }} />
+              <Typography variant="body2">Pay  <br />UCPI ID</Typography>
+            </Box>
           </Grid>
         </Grid>
       </Card>
 
       {/* Payment History Section */}
-      <Card
-        sx={{
-          width: "100%",
-          maxWidth: 400,
-          mt: 3,
-          p: 2,
-          borderRadius: 4,
-          boxShadow: 3,
-          backgroundColor: "#ffffff",
-        }}
-      >
-        <Typography variant="h6" align="center" sx={{ mb: 2 }}>
-          Payment History
-        </Typography>
-        <Box display="flex" alignItems="center" mb={2}>
-          <TextField
-            placeholder="Search by Amount"
-            variant="outlined"
-            size="small"
-            fullWidth
-          />
-          <IconButton sx={{ ml: 1 }}>
-            <Search />
-          </IconButton>
-          <IconButton>
-            <ArrowDownward />
-          </IconButton>
-        </Box>
-        <List>
-          {paymentHistory.map((transaction, index) => (
-            <React.Fragment key={index}>
-              <ListItem>
-                <ListItemText
-                  primary={`${transaction.name} - ${transaction.transaction}`}
-                  secondary={`Amount: ${transaction.amount} | From: ${transaction.from}`}
-                />
-              </ListItem>
-              {index < paymentHistory.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
-        </List>
-      </Card>
+      <Box
+      sx={{
+        width: "100%",
+        maxWidth: 400,
+        mt: 3,
+        p: 2,
+        bottom:0,
+      mb:0,
+        borderRadius: 4,
+        backgroundColor: "#ffffff",
+      }}
+    >
+      <Typography variant="h6" align="left" sx={{ mb: 2, fontWeight: "bold" }}>
+        Payment History
+      </Typography>
+      <Box display="flex" alignItems="center" mb={2} sx={{ border: "1px solid #e0e0e0", borderRadius: 1, p: 0.5 }}>
+        <TextField
+          placeholder="Search by Amount"
+          variant="outlined"
+          size="small"
+          fullWidth
+          InputProps={{
+            disableUnderline: true,
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                border: "none",
+              },
+            },
+          }}
+        />
+        <IconButton>
+          <SearchIcon />
+        </IconButton>
+        <IconButton>
+          <ArrowDownwardIcon sx={{ border: "1px solid #000", borderRadius: "50%", padding: "3px" }} />
+        </IconButton>
+      </Box>
+      <List>
+        {paymentHistory.map((transaction, index) => (
+          <React.Fragment key={index}>
+            <ListItem disableGutters sx={{ paddingY: 1 }}>
+              <Avatar sx={{ bgcolor: transaction.iconColor, marginRight: 2 }}>
+                <AccountBalanceIcon />
+              </Avatar>
+              <ListItemText
+                primary={
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                      {transaction.name}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: "bold", color: transaction.amount.startsWith("-") ? "red" : "green" }}>
+                      {transaction.amount}
+                    </Typography>
+                  </Box>
+                }
+                secondary={
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="body2" sx={{ color: "#757575" }}>
+                      Paid {transaction.transactionTime}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "#757575" }}>
+                      From: {transaction.from}
+                    </Typography>
+                  </Box>
+                }
+              />
+            </ListItem>
+            {index < paymentHistory.length - 1 && <Divider sx={{ marginX: 2, backgroundColor: "#e0e0e0" }} />}
+          </React.Fragment>
+        ))}
+      </List>
+    </Box>
     </Box>
   );
 };

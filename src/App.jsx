@@ -15,16 +15,10 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    
-    // Define restricted routes where user must be logged in
     const restrictedRoutes = ["/dashboard", "/payments"];
-
-    // Redirect to /signin if no token and user tries to access restricted routes
     if (!token && restrictedRoutes.includes(location.pathname)) {
       navigate("/signin");
     }
-
-    // Redirect to /dashboard if token exists and user visits the root route
     if (token && location.pathname === "/") {
       navigate("/dashboard");
     }
