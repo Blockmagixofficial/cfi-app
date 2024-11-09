@@ -89,19 +89,19 @@ const SearchVerifiedDetails = () => {
                 marginRight: 2,
               }}
             >
-              {userData.bankDetails.name.charAt(0).toUpperCase()}
+              {userData?.bankDetails?.name?.charAt(0)?.toUpperCase()}
             </Avatar>
             <Box>
               <Box display="flex" alignItems="center">
                 <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                  {userData.bankDetails.name}
+                  {userData?.bankDetails?.name}
                 </Typography>
-                {userData.bankDetails.verified && (
+                {userData?.bankDetails?.verified && (
                   <CheckCircleIcon sx={{ color: "blue", fontSize: 18, ml: 1 }} />
                 )}
               </Box>
               <Typography variant="body2" sx={{ color: "#757575" }}>
-                {userData.bankDetails.accountNumber} - {userData.bankDetails.ucpid}
+                {userData?.bankDetails?.accountNumber} - {userData?.bankDetails?.ucpiId}
               </Typography>
               <Typography variant="body2" sx={{ color: "#757575" }}>
                 Bank A/c linked on UPI

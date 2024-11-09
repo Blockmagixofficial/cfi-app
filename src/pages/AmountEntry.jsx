@@ -13,7 +13,9 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { styled } from "@mui/system";
-
+import { useSelector } from "react-redux";
+import axios from "axios";
+import axiosInstance from "../utils/axios";
 // Styled small select component
 const SmallSelect = styled(Select)({
   marginLeft: 8,
@@ -31,12 +33,38 @@ const AmountEntry = () => {
   const { name } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const userInfo = useSelector((state) => state.user.userInfo);
   
   const userData = location.state?.userData || {}; // Access userData passed through navigation
   const [amount, setAmount] = useState("");
+  const [fee, setFee] = useState(0);
+  const [willReceiveAmount, setWillReceiveAmount] = useState(0);
+  const [worldCurrencies, setCurrencies] = useState(null);
+  const [conversionRate, setConversionRate] = useState(1);
   const [note, setNote] = useState("");
-  const [currency, setCurrency] = useState("INR"); // Default currency
+  const [currencySymbol, setCurrencySymbol] = useState("$");
+  const [currency, setCurrency] = useState(userData.currency); // Default currency
 
+  const feeCalculation = .10;//this in percent;
+  useState(async () => {
+    console.log({ worldCurrencies });
+    const wc = await axiosInstance.get(`/api/currencies`);
+    if(wc && wc.data){
+      setCurrencies(wc.data.data);
+      setCurrencySymbol(wc.data.data[userData.currency].symbol);
+      console.log(wc.data.data[userData.currency].symbol,userData.currency)
+    }
+    if (userInfo.currency != userData.currency) {
+      console.log("inside this boxx");
+      let dd = await axios.get(`https://v6.exchangerate-api.com/v6/8fa5a6ae2ce88bbf3187076e/pair/${userInfo.currency}/${userData.currency}`);
+      if(dd && dd.data && dd.data.conversion_rate){
+        setConversionRate(dd.data.conversion_rate);
+      }
+      // console.log("currency api data", dd.data);
+    }
+
+    console.log("userData at 41", userInfo);
+  }, []);
   const handleNext = () => {
     if (amount) {
       console.log("Currency:", currency, "Amount:", amount, "Note:", note);
@@ -45,7 +73,18 @@ const AmountEntry = () => {
     }
   };
 
-  const currencySymbol = currency === "INR" ? "₹" : "$";
+  const handleAmount = (value) => {
+    let feeOnAmount = value * feeCalculation
+    let valueAfterFee = value - feeOnAmount; 
+    console.log(value,feeOnAmount, valueAfterFee)
+    setAmount(value);
+    setWillReceiveAmount(valueAfterFee * conversionRate);
+    setFee(feeOnAmount);
+  };
+
+  if(worldCurrencies){
+    const currencySymbol = currency === "INR" ? "₹" : "$";
+  }
 
   return (
     <Box
@@ -111,17 +150,19 @@ const AmountEntry = () => {
       </Box> */}
 
       {/* Display Currency Symbol with Amount */}
+      <span style={{fontSize:'30px'}}>ashwini will receive</span>
       <Typography variant="h3" align="center" sx={{ fontWeight: "bold", ml: 1, color: "#ffffff" }}>
-        {currencySymbol} {amount || "0"}
+         {currencySymbol} {willReceiveAmount || "0"}
       </Typography>
 
       <TextField
         fullWidth
-        placeholder="Enter Amount"
+        placeholder={`Enter Amount in $`}
+        // placeholder={`Enter Amount in ${worldCurrencies ?? worldCurrencies[userInfo?.currency]?.symbol}`}
         variant="standard"
         type="number"
         value={amount}
-        onChange={(e) => setAmount(e.target.value)}
+        onChange={(e) => handleAmount(e.target.value)}
         inputProps={{
           style: {
             fontSize: 36,
