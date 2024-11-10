@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -10,49 +10,73 @@ import {
   DialogContent,
   DialogActions,
   Grid,
+  CircularProgress,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLocation, useNavigate } from "react-router-dom";
-
-// Sample bank accounts data based on currency
-const bankAccounts = {
-  INR: [
-    { id: 1, name: "HDFC Bank", balance: "₹3000" },
-    { id: 2, name: "Axis Bank", balance: "₹5000" },
-    { id: 3, name: "ICICI Bank", balance: "₹1500" },
-  ],
-  USD: [
-    { id: 1, name: "Bank of America", balance: "$500" },
-    { id: 2, name: "Chase Bank", balance: "$300" },
-    { id: 3, name: "Wells Fargo", balance: "$700" },
-  ],
-};
+import axiosInstance from "../utils/axios";
 
 const PaymentConfirmation = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { name, currency = "INR", amount, note, selectedBank } = state || {};
-
-  const [currentBank, setCurrentBank] = useState(
-    selectedBank || (bankAccounts[currency] && bankAccounts[currency][0]) || null
-  );
+  const {
+    name,
+    currency,
+    willReceiveAmount,
+    amount,
+    note,
+    selectedBank,
+    fee,
+  } = state || {};
+  console.log("selectedBank",willReceiveAmount);
+  const [banks, setBanks] = useState([]);
+  const [currentBank, setCurrentBank] = useState(selectedBank || null);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const [enteredPin, setEnteredPin] = useState("");
   const [showBalance, setShowBalance] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchBankData = async () => {
+      try {
+        const response = await axiosInstance.get("/user/getUserBankList");
+        const banksData = response.data;
+
+        setBanks(banksData);
+
+        // Set current bank as either selectedBank from state or default bank from list
+        const defaultBank =
+          banksData.find((bank) => bank.default) || banksData[0];
+        setCurrentBank(selectedBank || defaultBank);
+        setLoading(false);
+      } catch (error) {
+        setError("Failed to fetch bank data.");
+        setLoading(false);
+      }
+    };
+
+    fetchBankData();
+  }, [selectedBank]);
 
   const handleBankSelection = () => {
     navigate("/bank-selection", {
-      state: { name, currency, selectedBankId: currentBank?.id , amount,},
+      state: { selectedBank: currentBank, willReceiveAmount, name, currency, amount }, // Pass the currently selected bank to BankSelection
     });
   };
-
 
   const handlePay = () => {
     navigate("/payment", {
-      state: { name, currency, selectedBankId: currentBank?.id, amount },
+      state: {
+        name,
+        currency,
+        selectedBank: currentBank,
+        willReceiveAmount,
+        amount,
+        fee
+      },
     });
   };
-
 
   const handleCheckBalance = () => {
     setPinDialogOpen(true);
@@ -80,6 +104,23 @@ const PaymentConfirmation = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div>
+        {" "}
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Typography color="error" align="center">
+        {error}
+      </Typography>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -93,7 +134,13 @@ const PaymentConfirmation = () => {
       }}
     >
       {/* Header */}
-      <Box display="flex" alignItems="center" justifyContent="flex-start" width="100%" p={2}>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="flex-start"
+        width="100%"
+        p={2}
+      >
         <IconButton sx={{ color: "#333" }} onClick={() => navigate(-1)}>
           <ArrowBackIcon />
         </IconButton>
@@ -103,15 +150,30 @@ const PaymentConfirmation = () => {
       </Box>
 
       {/* Payment Info */}
-      <Box display="flex" flexDirection="column" alignItems="center" mb={4} mt={2}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        mb={4}
+        mt={2}
+      >
         <Avatar sx={{ bgcolor: "#1976d2", width: 60, height: 60 }}>
           {name?.charAt(0)?.toUpperCase()}
         </Avatar>
-        <Typography variant="h6" sx={{ mt: 1 }}>Paying {name}</Typography>
-        <Typography variant="h3" sx={{ fontWeight: "bold", color: "#1976d2", mt: 1 }}>
-          {currency === "INR" ? "₹" : "$"} {amount}
+        <Typography variant="h6" sx={{ mt: 1 }}>
+          Paying To {name}
         </Typography>
-        {note && <Typography sx={{ color: "#888", mt: 1, textAlign: "center" }}>{note}</Typography>}
+        <Typography
+          variant="h3"
+          sx={{ fontWeight: "bold", color: "#1976d2", mt: 1 }}
+        >
+          {currency === "INR" ? "₹" : "$"} {willReceiveAmount}
+        </Typography>
+        {note && (
+          <Typography sx={{ color: "#888", mt: 1, textAlign: "center" }}>
+            {note}
+          </Typography>
+        )}
       </Box>
 
       {/* Bank Selection */}
@@ -141,21 +203,39 @@ const PaymentConfirmation = () => {
             "&:hover": { backgroundColor: "#f9f9f9" },
           }}
         >
-          <Avatar sx={{ bgcolor: "#1976d2", mr: 2 }}>{currentBank.name.charAt(0)}</Avatar>
+          <Avatar src={currentBank?.logo} sx={{ bgcolor: "#1976d2", mr: 2 }}>
+            {currentBank?.bankName.charAt(0)}
+          </Avatar>
           <Box>
-            <Typography variant="body1" sx={{ fontWeight: 500 }}>{currentBank.name}</Typography>
+            <Typography variant="body1" sx={{ fontWeight: 500 }}>
+              {currentBank?.bankName}
+            </Typography>
           </Box>
         </Box>
 
-        <Button onClick={handleCheckBalance} variant="text" color="primary" sx={{ mt: 1, fontWeight: 500 }}>
-          {showBalance ? `Balance: ${currentBank.balance}` : "Check Balance"}
+        <Button
+          onClick={handleCheckBalance}
+          variant="text"
+          color="primary"
+          sx={{ mt: 1, fontWeight: 500 }}
+        >
+          {showBalance
+            ? `Balance: ${currency === "INR" ? "₹" : "$"} ${
+                currentBank?.balance
+              }`
+            : "Check Balance"}
         </Button>
-        
+
         <Divider sx={{ my: 2 }} />
-        
+
         <Box sx={{ p: 2, backgroundColor: "#e0f7fa", borderRadius: 2 }}>
-          <Typography variant="body2" color="textSecondary" sx={{ textAlign: "center" }}>
-            {currentBank.name} payments are PIN-free. Money will be debited instantly when you pay.
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            sx={{ textAlign: "center" }}
+          >
+            {currentBank?.bankName} payments are PIN-free. Money will be debited
+            instantly when you pay.
           </Typography>
         </Box>
       </Box>
@@ -177,11 +257,12 @@ const PaymentConfirmation = () => {
           transition: "transform 0.2s",
           "&:hover": {
             backgroundColor: "#1565c0",
-            transform: "translateY(-2px)"
+            transform: "translateY(-2px)",
           },
         }}
       >
-        Pay {currency === "INR" ? "₹" : "$"} {amount} with {currentBank.name}
+        Pay {currency === "INR" ? "₹" : "$"} {willReceiveAmount} with{" "}
+        {currentBank?.bankName}
       </Button>
 
       {/* PIN Entry Dialog with Numeric Keypad */}
@@ -201,11 +282,14 @@ const PaymentConfirmation = () => {
       >
         <DialogContent>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold", textAlign: "center" }}>
-            Check Balance
+            <Typography
+              variant="h6"
+              sx={{ mb: 1, fontWeight: "bold", textAlign: "center" }}
+            >
+              Check Balance
             </Typography>
             <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-              with {currentBank.name}
+              with {currentBank?.bankName}
             </Typography>
 
             {/* Display PIN */}
@@ -228,7 +312,9 @@ const PaymentConfirmation = () => {
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, "⌫", 0].map((num, idx) => (
                 <Grid item xs={4} key={idx}>
                   <Button
-                    onClick={() => (num === "⌫" ? handlePinDelete() : handlePinInput(num))}
+                    onClick={() =>
+                      num === "⌫" ? handlePinDelete() : handlePinInput(num)
+                    }
                     variant="outlined"
                     sx={{
                       width: "100%",
@@ -251,7 +337,10 @@ const PaymentConfirmation = () => {
 
           {/* Action Buttons */}
           <DialogActions sx={{ justifyContent: "center", mt: 2 }}>
-            <Button onClick={() => setPinDialogOpen(false)} sx={{ color: "#d32f2f", fontWeight: "bold" }}>
+            <Button
+              onClick={() => setPinDialogOpen(false)}
+              sx={{ color: "#d32f2f", fontWeight: "bold" }}
+            >
               Cancel
             </Button>
             <Button

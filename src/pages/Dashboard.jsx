@@ -304,9 +304,11 @@ const Dashboard = () => {
             <React.Fragment key={index}>
               <ListItem disableGutters sx={{ paddingY: 1 }}>
                 <Avatar
-                  src={transaction?.recipientOrSenderProfile}
-                  sx={{ marginRight: 2 }}
-                />
+                  src={transaction?.recipientOrSenderProfile || ""}
+                  sx={{ marginRight: 2, backgroundColor: "skyblue" }}
+                >
+                  {!transaction?.recipientOrSenderProfile && <PersonIcon />}
+                </Avatar>
 
                 <ListItemText
                   primary={
@@ -318,8 +320,14 @@ const Dashboard = () => {
                       <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                         {transaction.recipientOrSenderName}
                       </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                        + {transaction.credit}
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: "bold",
+                          color: transaction.credit >= 0 ? "green" : "red",
+                        }}
+                      >
+                        {transaction.credit}
                       </Typography>
                     </Box>
                   }
@@ -329,10 +337,23 @@ const Dashboard = () => {
                       justifyContent="space-between"
                       alignItems="center"
                     >
-                      <Typography variant="body2" sx={{ color: "#757575" }}>
-                        {transaction.type}
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "#757575", fontSize: 9 }}
+                      >
+                        {new Date(transaction.updatedAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "numeric",
+                          }
+                        )}
                       </Typography>
-                      <Box display={"flex"} alignItems={"center"} gap={1} >
+
+                      <Box display={"flex"} alignItems={"center"} gap={1}>
                         <Avatar
                           src={transaction?.recipientOrSenderBankLogo}
                           sx={{ marginRight: 2, height: 18, width: 18 }}

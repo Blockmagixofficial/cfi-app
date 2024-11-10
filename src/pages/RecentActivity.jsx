@@ -13,111 +13,49 @@ import {
   ListItemAvatar,
   Divider,
   CircularProgress,
+  Snackbar,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import SearchIcon from "@mui/icons-material/Search";
 import axiosInstance from "../utils/axios";
 import VerifiedIcon from "@mui/icons-material/CheckCircle"; // For verified icon
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserData } from "../stores/receiverSlice";
 
-const recentContacts = [
-  {
-    name: "Vashi Akhtar",
-    transactionTime: "Today, 02:36 PM",
-    amount: -80,
-    from: "Axis",
-    iconColor: "#90caf9",
-  },
-  {
-    name: "Peter Johnson",
-    transactionTime: "Yesterday, 01:15 PM",
-    amount: -150,
-    from: "HDFC",
-    iconColor: "#ffcc80",
-  },
-  {
-    name: "Rama Devi",
-    transactionTime: "02 Nov, 10:00 AM",
-    amount: 200,
-    from: "SBI",
-    iconColor: "#c5e1a5",
-  },
-  {
-    name: "Simran Kaur",
-    transactionTime: "3 Nov, 05:00 PM",
-    amount: 300,
-    from: "ICICI",
-    iconColor: "#ffab91",
-  },
-  {
-    name: "Anil Kumar",
-    transactionTime: "Last week",
-    amount: -100,
-    from: "Canara",
-    iconColor: "#9fa8da",
-  },
-  {
-    name: "Neha Singh",
-    transactionTime: "Last month",
-    amount: 150,
-    from: "Union",
-    iconColor: "#b39ddb",
-  },
-];
 const RecentActivity = () => {
-  const [ucpiID, setUcpiID] = useState("");
+  const { state } = useLocation();
+  const { amount } = state || {};
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [copiedUcpiId, setCopiedUcpiId] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const [recentContacts, setRecentContacts] = useState([]);
+  const dispatch = useDispatch();
+  const { userData, loading, error } = useSelector((state) => state.receiver);
 
   const handleCardClick = () => {
     navigate(`/amount-entry/${userData.name}`, { state: { userData } });
   };
 
-  const handleUCPIInputSubmit = (contact) => {
-    navigate(`/amount-entry/${contact.recipientOrSenderName.slice(0, 4)}`, {
-      state: { contact },
-    });
+  const handleCopyUcpiId = (contact) => {
+    const ucpiId = contact.recipientOrSenderUcpiId; // Assuming the UCPI ID is stored in this field
+    navigator.clipboard.writeText(ucpiId);
+    setCopiedUcpiId(ucpiId);
+    setSnackbarOpen(true);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
   };
 
   useEffect(() => {
     if (searchInput) {
-      setLoading(true);
-      setError(null);
-      setUserData(null); // Clear previous data
-
-      const fetchUserData = async () => {
-        try {
-          const response = await axiosInstance.get(
-            `/user/userByUcpiId/${searchInput}`
-          );
-
-          // Check if response is null
-          if (response.data === null) {
-            setError(
-              "User bank details not found. Please check and try again."
-            );
-          } else {
-            setUserData(response.data); // Store the response data if found
-          }
-        } catch (err) {
-          setError("An error occurred. Please try again.");
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchUserData();
-    } else {
-      setUserData(null);
-      setError(null);
+      dispatch(fetchUserData(searchInput));
     }
-  }, [searchInput]);
+  }, [dispatch, searchInput]);
 
   useEffect(() => {
     const fetchPaymentHistory = async () => {
@@ -153,7 +91,12 @@ const RecentActivity = () => {
         width="100%"
         p={2}
       >
-        <IconButton sx={{ backgroundColor: "#e0e3e7" }} href="/">
+        <IconButton
+          sx={{ backgroundColor: "#e0e3e7" }}
+          onClick={
+            () => navigate("/recent-activity", { state: { amount } }) // Pass the amount back to retain it
+          }
+        >
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
@@ -219,7 +162,7 @@ const RecentActivity = () => {
           <Box display="flex" alignItems="center">
             <Avatar
               src={userData?.profileUrl}
-              sx={{ bgcolor: "#FFD700", mr: 2, width: 56, height: 56 }}
+              sx={{ bgcolor: "#FFD700", mr: 2, width: 46, height: 46 }}
             >
               {!userData?.profileUrl && userData.name.charAt(0)}{" "}
             </Avatar>
@@ -229,7 +172,7 @@ const RecentActivity = () => {
                   {userData.bankDetails.name}
                 </Typography>
                 {userData.bankDetails.verified && (
-                  <IconButton sx={{ ml: 1, color: "blue" }}>
+                  <IconButton sx={{ ml: 1, color: "green" }}>
                     <VerifiedIcon fontSize="small" /> {/* Verified icon */}
                   </IconButton>
                 )}
@@ -262,18 +205,15 @@ const RecentActivity = () => {
         </Typography>
         <Grid container spacing={2} justifyContent="center">
           {recentContacts.slice(0, 6).map((contact, index) => (
-            <Grid
-              item
-              xs={4}
-              key={index}
-              onClick={() => handleUCPIInputSubmit(contact)}
-            >
+            <Grid item xs={4} key={index}>
               <Box
                 textAlign="center"
                 alignItems={"center"}
                 justifyContent={"center"}
                 display={"flex"}
                 flexDirection={"column"}
+                onClick={() => handleCopyUcpiId(contact)}
+                sx={{ cursor: "pointer" }}
               >
                 <Avatar
                   src={contact?.recipientOrSenderProfile}
@@ -356,6 +296,17 @@ const RecentActivity = () => {
           ))}
         </List>
       </Card>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        message={`UCPI ID ${copiedUcpiId} copied. Paste it in the search to pay.`}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        ContentProps={{
+          sx: { backgroundColor: "green", color: "white" },
+        }}
+      />
     </Box>
   );
 };

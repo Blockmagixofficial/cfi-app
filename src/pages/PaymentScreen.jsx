@@ -11,6 +11,9 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
 import SuccessSound from "../assets/success-sound.mp3"; // Make sure to have this sound file in your project
 import html2canvas from "html2canvas";
+import axiosInstance from "../utils/axios";
+import { useDispatch, useSelector } from "react-redux";
+import { clearReceiverData } from "../stores/receiverSlice";
 
 // Sample data for bank and transaction
 const transactionID = "3226734639";
@@ -33,12 +36,14 @@ const PaymentScreen = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate(); // Initialize navigate
   const { state } = useLocation();
-  const { name, currency = "INR", amount, note, selectedBank } = state || {};
+  const { name, willReceiveAmount, note, selectedBank, amount, fee } =
+    state || {};
+
   const [timestamp, setTimestamp] = useState(formatDate(new Date()));
-  // Handle PIN Input and Delete
-
-
+  const [transactionID, setTransactionID] = useState("");
   const screenshotRef = useRef(null);
+  const { userData } = useSelector((state) => state.receiver);
+  const dispatch = useDispatch();
 
   const isMobileDevice = () => {
     return /Mobi|Android/i.test(navigator.userAgent);
@@ -50,7 +55,7 @@ const PaymentScreen = () => {
       const image = canvas.toDataURL("image/png");
 
       // Prepare the message for WhatsApp
-      const message = `Payment Successful!\nAmount: ₹${amount}.00\nPaid to: ${name}\nTransaction ID: ${transactionID}\n${timestamp}`;
+      const message = `Payment Successful!\nwillReceiveAmount: ₹${willReceiveAmount}.00\nPaid to: ${name}\nTransaction ID: ${transactionID}\n${timestamp}`;
 
       // Choose the appropriate WhatsApp URL based on the device
       const whatsappURL = isMobileDevice()
@@ -69,7 +74,6 @@ const PaymentScreen = () => {
     }
   }, [isSuccess]);
 
-
   const handlePinInput = (num) => {
     if (enteredPin.length < 4) {
       setEnteredPin(enteredPin + num);
@@ -80,16 +84,39 @@ const PaymentScreen = () => {
     setEnteredPin(enteredPin.slice(0, -1));
   };
 
-  const handlePinSubmit = () => {
+  const handlePinSubmit = async () => {
     if (enteredPin.length !== 4) {
       setError("Please enter a 4-digit PIN");
-    } else {
-      setError(null); // Clear any existing error
-      setIsLoading(true); // Show loading indicator
-      setTimeout(() => {
-        setIsLoading(false);
-        setIsSuccess(true); // Show success screen after loading
-      }, 2000); // Simulate a 2-second payment processing time
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    const payload = {
+      amount: parseInt(amount, 0),
+      bankId: selectedBank?._id || "",
+      receiverUcpiId: userData?.ucpiId || "",
+      willReceiveAmount: willReceiveAmount || 0,
+      userNote: note || "Payment",
+      fees: fee || 0,
+    };
+
+    try {
+      // Make the API call to transfer funds
+      const response = await axiosInstance.post("/user/transferFunds", payload);
+      console.log("response.data.data", response.data.data);
+
+      if (response.data) {
+        setTransactionID(response.data.data); // Store transaction ID
+        console.log("response.data.data", response.data.data);
+        setIsSuccess(true);
+        dispatch(clearReceiverData());
+      }
+    } catch (error) {
+      setError("Payment failed. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -132,20 +159,23 @@ const PaymentScreen = () => {
           style={{ height: "200px" }}
           alt="Success"
         />
-        <Typography variant="h4" sx={{ fontWeight: "bold", color: "green", mb: 2 }}>
-          ₹{amount}.00
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: "bold", color: "green", mb: 2 }}
+        >
+          ₹{Math.abs(transactionID?.credit)}.00
         </Typography>
         <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
-          Paid to {name}
+          Paid to {transactionID?.recipientOrSenderName}
         </Typography>
         <Typography variant="body2" color="textSecondary">
-          {selectedBank?.toLowerCase()}@upi
+          {transactionID?.recipientOrSenderUcpiId}@upi
         </Typography>
         <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
           {timestamp}
         </Typography>
         <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-          UPI transaction ID: {transactionID}
+          UPI transaction ID: {transactionID?.ref}
         </Typography>
 
         <Button variant="outlined" sx={{ mt: 3 }} onClick={captureScreenshot}>
@@ -163,8 +193,6 @@ const PaymentScreen = () => {
     );
   }
 
-
-
   return (
     <Box
       display="flex"
@@ -181,7 +209,7 @@ const PaymentScreen = () => {
         variant="h6"
         sx={{ fontWeight: "bold", mb: 1, textAlign: "center" }}
       >
-        From - {selectedBank} (UPI)
+        From - {selectedBank?.bankName || "Unknown Bank"} (UPI)
       </Typography>
       <Typography variant="body1" sx={{ mb: 1 }}>
         To: {name || "Unknown User"}
@@ -190,7 +218,7 @@ const PaymentScreen = () => {
         variant="h4"
         sx={{ fontWeight: "bold", color: "#1976d2", mb: 2 }}
       >
-        ₹{amount}
+        ₹{willReceiveAmount}
       </Typography>
 
       {/* Enter PIN Section */}

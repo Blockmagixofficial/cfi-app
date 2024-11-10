@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import axiosInstance from "../utils/axios";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 const BankSelection = () => {
   const [banks, setBanks] = useState([]);
@@ -21,13 +21,15 @@ const BankSelection = () => {
   const [error, setError] = useState(null);
   const [selectedBank, setSelectedBank] = useState(null);
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const { name, currency, willReceiveAmount, note } = state || {};
 
   useEffect(() => {
-    // Fetch bank data from the API
     const fetchBankData = async () => {
       try {
         const response = await axiosInstance.get("/user/getUserBankList");
-        setBanks(response.data); // Assuming response.data is an array of bank objects
+        setBanks(response.data);
+        console.log("Banks", response.data)
         setLoading(false);
       } catch (error) {
         setError("Failed to fetch bank data.");
@@ -48,7 +50,7 @@ const BankSelection = () => {
 
   const handleActivateUPI = () => {
     navigate("/payment-confirmation", {
-      state: { bankName: selectedBank.bankName },
+      state: { selectedBank, name, currency, willReceiveAmount, note },
     });
   };
 
@@ -149,9 +151,9 @@ const BankSelection = () => {
                 fullWidth
                 sx={{
                   mb: 1,
-                  borderRadius: "24px", // Rounded corners
+                  borderRadius: "24px", 
                   padding: "10px",
-                  textTransform: "none", // Disable uppercase
+                  textTransform: "none", 
                 }}
                 onClick={handleActivateUPI}
               >

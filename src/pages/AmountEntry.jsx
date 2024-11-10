@@ -9,10 +9,11 @@ import {
   Select,
   MenuItem,
   InputBase,
+  InputAdornment,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { styled } from "@mui/system";
+import { Grid, styled } from "@mui/system";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import axiosInstance from "../utils/axios";
@@ -34,30 +35,33 @@ const AmountEntry = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const userInfo = useSelector((state) => state.user.userInfo);
-  
-  const userData = location.state?.userData || {}; // Access userData passed through navigation
-  const [amount, setAmount] = useState("");
+  const { userData } = useSelector((state) => state.receiver);
+  // const userData = location.state?.userData || {};
+
+  const [amount, setAmount] = useState(location.state?.amount || "");
   const [fee, setFee] = useState(0);
   const [willReceiveAmount, setWillReceiveAmount] = useState(0);
   const [worldCurrencies, setCurrencies] = useState(null);
   const [conversionRate, setConversionRate] = useState(1);
   const [note, setNote] = useState("");
   const [currencySymbol, setCurrencySymbol] = useState("$");
-  const [currency, setCurrency] = useState(userData.currency); // Default currency
+  const [currency, setCurrency] = useState(userData.currency);
 
-  const feeCalculation = .10;//this in percent;
+  const feeCalculation = 0.1;
   useState(async () => {
     console.log({ worldCurrencies });
     const wc = await axiosInstance.get(`/api/currencies`);
-    if(wc && wc.data){
+    if (wc && wc.data) {
       setCurrencies(wc.data.data);
       setCurrencySymbol(wc.data.data[userData.currency].symbol);
-      console.log(wc.data.data[userData.currency].symbol,userData.currency)
+      console.log(wc.data.data[userData.currency].symbol, userData.currency);
     }
     if (userInfo.currency != userData.currency) {
       console.log("inside this boxx");
-      let dd = await axios.get(`https://v6.exchangerate-api.com/v6/8fa5a6ae2ce88bbf3187076e/pair/${userInfo.currency}/${userData.currency}`);
-      if(dd && dd.data && dd.data.conversion_rate){
+      let dd = await axios.get(
+        `https://v6.exchangerate-api.com/v6/8fa5a6ae2ce88bbf3187076e/pair/${userInfo.currency}/${userData.currency}`
+      );
+      if (dd && dd.data && dd.data.conversion_rate) {
         setConversionRate(dd.data.conversion_rate);
       }
       // console.log("currency api data", dd.data);
@@ -65,26 +69,40 @@ const AmountEntry = () => {
 
     console.log("userData at 41", userInfo);
   }, []);
+
   const handleNext = () => {
     if (amount) {
       console.log("Currency:", currency, "Amount:", amount, "Note:", note);
       // Pass name, amount, note, and currency to the PaymentConfirmation screen
-      navigate(`/payment-confirmation`, { state: { name, currency, amount, note } });
+      navigate(`/payment-confirmation`, {
+        state: { name, currency, willReceiveAmount, note, amount, fee },
+      });
     }
   };
 
   const handleAmount = (value) => {
-    let feeOnAmount = value * feeCalculation
-    let valueAfterFee = value - feeOnAmount; 
-    console.log(value,feeOnAmount, valueAfterFee)
+    let feeOnAmount = value * feeCalculation;
+    let valueAfterFee = value - feeOnAmount;
+    console.log(value, feeOnAmount, valueAfterFee);
     setAmount(value);
     setWillReceiveAmount(valueAfterFee * conversionRate);
     setFee(feeOnAmount);
   };
 
-  if(worldCurrencies){
-    const currencySymbol = currency === "INR" ? "₹" : "$";
-  }
+  const handleAmountInput = (value) => {
+    const newAmount = amount + value;
+    const calculatedFee = newAmount * feeCalculation;
+    const calculatedReceiveAmount = newAmount - calculatedFee;
+    setAmount(newAmount);
+    setWillReceiveAmount(calculatedReceiveAmount);
+    setFee(calculatedFee);
+  };
+
+  const handleClearAmount = () => {
+    setAmount("");
+    setWillReceiveAmount(0);
+    setFee(0);
+  };
 
   return (
     <Box
@@ -93,14 +111,29 @@ const AmountEntry = () => {
         flexDirection: "column",
         alignItems: "center",
         padding: 2,
-        backgroundColor: "#1976d2", // Blue background like Google Pay
-        minHeight: "100vh",
-        color: "#fff",
+        pt:0,
+        pb:0,
+        backgroundColor: "white",
+        color: "black",
       }}
     >
       {/* Header */}
-      <Box display="flex" alignItems="center" justifyContent="flex-start" width="100%" p={2}>
-        <IconButton sx={{ color: "#fff" }} onClick={() => navigate("/recent-activity")}>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="flex-start"
+        width="100%"
+        p={2}
+      >
+        <IconButton
+          sx={{ color: "black" }}
+          onClick={
+            () =>
+              navigate("/recent-activity", {
+                state: { willReceiveAmount, userData },
+              }) // Pass the amount back to retain it
+          }
+        >
           <ArrowBackIcon />
         </IconButton>
       </Box>
@@ -112,52 +145,57 @@ const AmountEntry = () => {
         alignItems="center"
         sx={{
           padding: 2,
-          mb: 4,
+          pt: 0,
         }}
       >
         <Avatar
           src={userData.profileUrl}
-          sx={{ width: 80, height: 80, bgcolor: "#FFD700", mb: 1 }}
+          sx={{ width: 60, height: 60, bgcolor: "#FFD700", mb: 1 }}
         >
           {!userData?.profileUrl && userData?.name?.charAt(0)}
         </Avatar>
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           {userData?.bankDetails?.name}
         </Typography>
-        <Typography variant="body2" >
-          {userData?.ucpiId} 
-        </Typography>
-        <Typography variant="body2" >
+        <Typography variant="body2">{userData?.ucpiId}</Typography>
+        <Typography variant="body2">
           {userData.bankDetails?.bankName} - Linked on UPI
         </Typography>
       </Box>
 
-     
+      <span style={{ fontSize: "14px" }}>ashwini will receive</span>
+      <span style={{ fontSize: "14px" }}>Platform Fee {fee.toFixed(3)} </span>
 
-      {/* Display Currency Symbol with Amount */}
-      <span style={{fontSize:'30px'}}>ashwini will receive</span>
-      <Typography variant="h3" align="center" sx={{ fontWeight: "bold", ml: 1, color: "#ffffff" }}>
-         {currencySymbol} {willReceiveAmount || "0"}
+      <Typography
+        variant="h3"
+        align="center"
+        sx={{ fontWeight: "bold", ml: 1, color: "black" }}
+      >
+        {currencySymbol} {willReceiveAmount.toFixed(2) || "0"}
       </Typography>
 
       <TextField
         fullWidth
-        placeholder={`Enter Amount in $`}
-        // placeholder={`Enter Amount in ${worldCurrencies ?? worldCurrencies[userInfo?.currency]?.symbol}`}
         variant="standard"
         type="number"
         value={amount}
         onChange={(e) => handleAmount(e.target.value)}
-        inputProps={{
+        placeholder="Enter Amount"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <span style={{ color: "black" }}>{userInfo?.currency}</span>
+            </InputAdornment>
+          ),
           style: {
-            fontSize: 36,
+            fontSize: 20,
             textAlign: "center",
-            color: "#fff",
+            color: "black",
           },
         }}
         sx={{
           backgroundColor: "transparent",
-          color: "#fff",
+          color: "black",
           maxWidth: "300px",
           mb: 3,
           mt: 5,
@@ -183,21 +221,76 @@ const AmountEntry = () => {
         {note || "What is this for?"}
       </Button>
 
-      {/* Floating Next Button */}
-      <IconButton
-        onClick={handleNext}
+      {/* Custom Keypad */}
+      <Box
         sx={{
-          backgroundColor: "#fff",
-          color: "#1976d2",
-          width: 60,
-          height: 60,
-          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-          position: "absolute",
-          bottom: 40,
+          width: "100%",
+          maxWidth: 400,
+          backgroundColor: "#1565c0",
+          borderRadius: 4,
+          padding: 2,
+          mt: 2,
         }}
       >
-        ➔
-      </IconButton>
+        <Grid container spacing={2} justifyContent="center">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, "⌫"].map((key, index) => (
+            <Grid item xs={6} key={index}>
+              <Button
+                onClick={() =>
+                  key === "⌫"
+                    ? handleClearAmount()
+                    : handleAmountInput(key.toString())
+                }
+                sx={{
+                  width: "100%",
+                  height: 60,
+                  backgroundColor: key === "⌫" ? "#333" : "transpernet",
+                  color: "#fff",
+                  fontSize: "1.5rem",
+                  
+                }}
+              >
+                {key}
+              </Button>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Pay and Request Buttons */}
+        <Box display="flex" justifyContent="space-between" mt={3}>
+          <Button
+            variant="contained"
+            fullWidth
+            sx={{
+              fontWeight: "bold",
+              backgroundColor: "#fff",
+              color: "#000",
+              borderRadius: 2,
+              height: 50,
+              mx: 1,
+            }}
+            onClick={handleNext}
+          >
+            Pay
+          </Button>
+          <Button
+            variant="contained"
+            fullWidth
+            sx={{
+              fontWeight: "bold",
+              backgroundColor: "#fff",
+              color: "#000",
+              borderRadius: 2,
+              height: 50,
+              mx: 1,
+            }}
+          >
+            Request
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Floating Next Button */}
     </Box>
   );
 };
