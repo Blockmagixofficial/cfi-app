@@ -15,13 +15,13 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
+import { useSelector } from "react-redux";
 
 const PaymentConfirmation = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { name, currency, willReceiveAmount, amount, note, selectedBank, fee } =
     state || {};
-  console.log("selectedBank", willReceiveAmount);
   const [banks, setBanks] = useState([]);
   const [currentBank, setCurrentBank] = useState(selectedBank || null);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
@@ -29,16 +29,14 @@ const PaymentConfirmation = () => {
   const [showBalance, setShowBalance] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { userData } = useSelector((state) => state.receiver);
 
   useEffect(() => {
     const fetchBankData = async () => {
       try {
         const response = await axiosInstance.get("/user/getUserBankList");
         const banksData = response.data;
-
         setBanks(banksData);
-
-        // Set current bank as either selectedBank from state or default bank from list
         const defaultBank =
           banksData.find((bank) => bank.default) || banksData[0];
         setCurrentBank(selectedBank || defaultBank);
@@ -60,7 +58,8 @@ const PaymentConfirmation = () => {
         name,
         currency,
         amount,
-      }, // Pass the currently selected bank to BankSelection
+        fee,
+      },
     });
   };
 
@@ -132,19 +131,27 @@ const PaymentConfirmation = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: 3,
-        backgroundColor: "#f5f5f5",
-        minHeight: "100vh",
-        color: "#333",
+        padding: 1,
+        pb: 0,
+        pt: 0,
+        minHeight: "100%",
+        top: 0,
+        width: "92vw",
       }}
     >
       {/* Header */}
       <Box
         display="flex"
         alignItems="center"
-        justifyContent="flex-start"
         width="100%"
         p={2}
+        sx={{
+          backgroundColor: "#F0F0F5",
+          position: "sticky",
+          top: 0,
+          mt: -2,
+          zIndex: 1000,
+        }}
       >
         <IconButton sx={{ color: "#333" }} onClick={() => navigate(-1)}>
           <ArrowBackIcon />
@@ -160,13 +167,15 @@ const PaymentConfirmation = () => {
         flexDirection="column"
         alignItems="center"
         mb={4}
-        mt={2}
+        mt={7}
       >
-        <Avatar sx={{ bgcolor: "#1976d2", width: 60, height: 60 }}>
-          {name?.charAt(0)?.toUpperCase()}
-        </Avatar>
+        <Avatar
+          src={userData?.profileUrl}
+          sx={{ bgcolor: "#1976d2", width: 60, height: 60 }}
+        />
+
         <Typography variant="h6" sx={{ mt: 1 }}>
-          Paying To {name}
+          Paying To {userData?.bankDetails?.name}
         </Typography>
         <Typography
           variant="h3"
@@ -222,7 +231,7 @@ const PaymentConfirmation = () => {
           onClick={handleCheckBalance}
           variant="text"
           color="primary"
-          sx={{ mt: 1, fontWeight: 500 }}
+          sx={{ mt: 1, fontWeight: 700 }}
         >
           {showBalance
             ? `Balance: ${currency === "INR" ? "₹" : "$"} ${

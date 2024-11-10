@@ -429,7 +429,7 @@ const RecentActivity = () => {
 
                           <Box display="flex" alignItems="center" gap={1}>
                             <img
-                              src={transaction?.recipientOrSenderBankLogo}
+                              src={transaction?.bankUsedLogo}
                               style={{ height: "25px", width: "25px" }}
                             />
                           </Box>

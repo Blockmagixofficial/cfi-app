@@ -45,7 +45,7 @@ const AmountEntry = () => {
   const [conversionRate, setConversionRate] = useState(1);
   const [note, setNote] = useState("");
   const [currencySymbol, setCurrencySymbol] = useState("$");
-  const [currency, setCurrency] = useState(userData.currency);
+  const [currency, setCurrency] = useState(userData?.currency);
 
   const feeCalculation = 0.1;
   useState(async () => {
@@ -53,13 +53,13 @@ const AmountEntry = () => {
     const wc = await axiosInstance.get(`/api/currencies`);
     if (wc && wc.data) {
       setCurrencies(wc.data.data);
-      setCurrencySymbol(wc.data.data[userData.currency].symbol);
-      console.log(wc.data.data[userData.currency].symbol, userData.currency);
+      setCurrencySymbol(wc.data.data[userInfo?.currency].symbol);
+      console.log(wc.data.data[userInfo?.currency].symbol, userInfo?.currency);
     }
-    if (userInfo.currency != userData.currency) {
+    if (userInfo?.currency != userInfo?.currency) {
       console.log("inside this boxx");
       let dd = await axios.get(
-        `https://v6.exchangerate-api.com/v6/8fa5a6ae2ce88bbf3187076e/pair/${userInfo.currency}/${userData.currency}`
+        `https://v6.exchangerate-api.com/v6/8fa5a6ae2ce88bbf3187076e/pair/${userInfo?.currency}/${userInfo?.currency}`
       );
       if (dd && dd.data && dd.data.conversion_rate) {
         setConversionRate(dd.data.conversion_rate);
@@ -95,9 +95,8 @@ const AmountEntry = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: 2,
         backgroundColor: "#1976d2",
-        minHeight: "94vh",
+        minHeight: "98vh",
         color: "#fff",
       }}
     >
@@ -135,11 +134,11 @@ const AmountEntry = () => {
       >
         <Avatar
           src={userData.profileUrl}
-          sx={{ width: 80, height: 80, bgcolor: "#FFD700", mb: 1 }}
+          sx={{ width: 90, height: 90, bgcolor: "#FFD700", mb: 1 }}
         >
           {!userData?.profileUrl && userData?.name?.charAt(0)}
         </Avatar>
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           {userData?.bankDetails?.name}
         </Typography>
         <Typography variant="body2">{userData?.ucpiId}</Typography>

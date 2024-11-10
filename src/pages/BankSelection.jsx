@@ -22,14 +22,14 @@ const BankSelection = () => {
   const [selectedBank, setSelectedBank] = useState(null);
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { name, currency, willReceiveAmount, note } = state || {};
+  const { name, currency, willReceiveAmount, note, fee, amount } = state || {};
 
   useEffect(() => {
     const fetchBankData = async () => {
       try {
         const response = await axiosInstance.get("/user/getUserBankList");
         setBanks(response.data);
-        console.log("Banks", response.data)
+        console.log("Banks", response.data);
         setLoading(false);
       } catch (error) {
         setError("Failed to fetch bank data.");
@@ -50,14 +50,32 @@ const BankSelection = () => {
 
   const handleActivateUPI = () => {
     navigate("/payment-confirmation", {
-      state: { selectedBank, name, currency, willReceiveAmount, note },
+      state: { selectedBank, name, currency, willReceiveAmount, note, amount, fee },
     });
   };
 
   return (
-    <Box sx={{ padding: 2, backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: 1,
+        pb: 0,
+        pt: 0,
+        minHeight: "100%",
+        top: 0,
+        width: "92vw",
+      }}
+    >
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          mt={2}
+          minHeight={"90vh"}
+        >
           <CircularProgress />
         </Box>
       ) : error ? (
@@ -67,9 +85,29 @@ const BankSelection = () => {
       ) : !selectedBank ? (
         // Bank Selection View
         <>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-            Select Your Bank
-          </Typography>
+          <Box
+            display="flex"
+            alignItems="center"
+            width="100%"
+            p={2}
+            sx={{
+              backgroundColor: "#F0F0F5",
+              position: "sticky",
+              top: 0,
+              mt: -2,
+              zIndex: 1000,
+            }}
+          >
+            <IconButton sx={{ color: "#333" }} onClick={() => navigate(-1)}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h6" sx={{ fontWeight: "bold", ml: 2 }}>
+              Select Your Bank
+            </Typography>
+          </Box>
+          <br />
+          <br />
+
           <Grid container spacing={2}>
             {banks.map((bank) => (
               <Grid item xs={6} sm={4} key={bank._id}>
@@ -102,7 +140,19 @@ const BankSelection = () => {
       ) : (
         // Bank Details View
         <>
-          <Box display="flex" alignItems="center" mb={2}>
+          <Box
+            display="flex"
+            alignItems="center"
+            width="100%"
+            p={2}
+            sx={{
+              backgroundColor: "#F0F0F5",
+              position: "sticky",
+              top: 0,
+              mt: -2,
+              zIndex: 1000,
+            }}
+          >
             <IconButton onClick={handleBack}>
               <ArrowBackIcon />
             </IconButton>
@@ -110,7 +160,7 @@ const BankSelection = () => {
               {selectedBank.bankName}
             </Typography>
           </Box>
-          <Card sx={{ p: 2, mb: 2 }}>
+          <Card sx={{ p: 2, mb: 2, mt: 5 }}>
             <Box display="flex" alignItems="center" mb={2}>
               <Avatar
                 src={selectedBank.logo}
@@ -151,9 +201,9 @@ const BankSelection = () => {
                 fullWidth
                 sx={{
                   mb: 1,
-                  borderRadius: "24px", 
+                  borderRadius: "24px",
                   padding: "10px",
-                  textTransform: "none", 
+                  textTransform: "none",
                 }}
                 onClick={handleActivateUPI}
               >
