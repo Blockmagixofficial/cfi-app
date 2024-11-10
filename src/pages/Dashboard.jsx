@@ -59,6 +59,12 @@ const Dashboard = () => {
     navigate("/recent-activity");
   };
 
+
+  const handleProfile = () => {
+    navigate("/profile");
+  };
+
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -96,37 +102,44 @@ const Dashboard = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: 2,
+        padding: 1,
         pb: 0,
-        backgroundColor: "#f5f5f5",
+        pt:0,
         minHeight: "100%",
+        width:"100%"
       }}
     >
       {/* Header */}
       <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        width="100%"
-        p={2}
-      >
-        <Box display="flex" alignItems="center" gap={2}>
-          <Avatar
-            src={userInfo?.profileUrl}
-            alt="Avatar"
-            sx={{ width: 50, height: 50 }}
-          />
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6">{userInfo?.name}</Typography>
-            <Typography variant="body2" color="textSecondary">
-              {userInfo?.ucpiId}
-            </Typography>
-          </Box>
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      width="100%"
+      p={2}
+      sx={{ backgroundColor: '#191970' }} // Blue background color
+    >
+      <Box display="flex" alignItems="center" gap={2} onClick={handleProfile}>
+        <Avatar
+          src={userInfo?.profileUrl}
+          alt="Avatar"
+          sx={{ width: 50, height: 50 }}
+
+        
+        />
+        <Box>
+          <Typography variant="h6" color="white">{userInfo?.name || 'Add Address'}</Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ color: '#B0B0E0' }}>
+            {userInfo?.ucpiId || 'Ambejogai Subdistrict'}
+          </Typography>
         </Box>
-        <IconButton>
-          <Search />
-        </IconButton>
       </Box>
+      <Box display="flex" alignItems="center" gap={2}>
+        <IconButton>
+          <Search sx={{ color: 'white' }} />
+        </IconButton>
+        {/* Add more icons as needed here */}
+      </Box>
+    </Box>
 
       {/* Welcome Message */}
 
