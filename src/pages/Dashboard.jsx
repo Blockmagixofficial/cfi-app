@@ -42,6 +42,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const userInfo = useSelector((state) => state.user.userInfo);
   const [paymentHistory, setPaymentHistory] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // State for search input
 
   const handleNavigation = () => {
     navigate("/recent-activity");
@@ -76,11 +77,13 @@ const Dashboard = () => {
 
     fetchPaymentHistory();
   }, []);
-  // const paymentHistory = [
-  //   { name: "Vashi Akhtar", transactionTime: "Today, 02:36 PM", amount: "- ₹80", from: "Axis", iconColor: "#90caf9" },
-  //   { name: "Peter Johnson", transactionTime: "Yesterday, 01:15 PM", amount: "- ₹150", from: "HDFC", iconColor: "#ffcc80" },
-  //   { name: "Rama Devi", transactionTime: "02 Nov, 10:00 AM", amount: "+ ₹200", from: "SBI", iconColor: "#c5e1a5" },
-  // ];
+
+  // Filtered payment history based on search term
+  const filteredPaymentHistory = paymentHistory.filter((transaction) =>
+    transaction.recipientOrSenderName
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Box
@@ -104,11 +107,11 @@ const Dashboard = () => {
         width="100%"
         p={2}
         sx={{
-          backgroundColor: "#F0F0F5", // Blue background color
+          backgroundColor: "#F0F0F5",
           position: "sticky",
           top: 0,
-          mt:-2,
-          zIndex: 1000, // Ensures header stays above other content
+          mt: -2,
+          zIndex: 1000,
         }}
       >
         <Box display="flex" alignItems="center" gap={2} onClick={handleProfile}>
@@ -285,6 +288,8 @@ const Dashboard = () => {
             variant="outlined"
             size="small"
             fullWidth
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
               disableUnderline: true,
             }}
@@ -310,7 +315,7 @@ const Dashboard = () => {
           </IconButton>
         </Box>
         <List>
-          {paymentHistory.map((transaction, index) => (
+          {filteredPaymentHistory.map((transaction, index) => (
             <React.Fragment key={index}>
               <ListItem disableGutters sx={{ paddingY: 1 }}>
                 <Avatar
@@ -349,13 +354,13 @@ const Dashboard = () => {
                     >
                       <Typography
                         variant="body2"
-                        sx={{ color: "#757575", fontSize: 9 }}
+                        sx={{ color: "#757575", fontSize: 12 }}
                       >
                         {new Date(transaction.updatedAt).toLocaleDateString(
                           "en-US",
                           {
                             year: "numeric",
-                            month: "long",
+                            month: "short",
                             day: "numeric",
                             hour: "numeric",
                             minute: "numeric",
@@ -364,9 +369,9 @@ const Dashboard = () => {
                       </Typography>
 
                       <Box display={"flex"} alignItems={"center"} gap={1}>
-                        <Avatar
+                        <img
                           src={transaction?.recipientOrSenderBankLogo}
-                          sx={{ marginRight: 2, height: 18, width: 18 }}
+                          style={{ height: "25px", width: "25px" }}
                         />
                       </Box>
                     </Box>
