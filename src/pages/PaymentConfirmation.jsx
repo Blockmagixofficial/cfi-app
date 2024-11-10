@@ -106,12 +106,19 @@ const PaymentConfirmation = () => {
 
   if (loading) {
     return (
-      <div>
-        {" "}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '80vh'
+        }}
+      >
         <CircularProgress />
       </div>
     );
   }
+  
 
   if (error) {
     return (

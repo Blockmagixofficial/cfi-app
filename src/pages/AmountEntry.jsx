@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { Grid, styled } from "@mui/system";
+import { styled } from "@mui/system";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import axiosInstance from "../utils/axios";
@@ -89,21 +89,6 @@ const AmountEntry = () => {
     setFee(feeOnAmount);
   };
 
-  const handleAmountInput = (value) => {
-    const newAmount = amount + value;
-    const calculatedFee = newAmount * feeCalculation;
-    const calculatedReceiveAmount = newAmount - calculatedFee;
-    setAmount(newAmount);
-    setWillReceiveAmount(calculatedReceiveAmount);
-    setFee(calculatedFee);
-  };
-
-  const handleClearAmount = () => {
-    setAmount("");
-    setWillReceiveAmount(0);
-    setFee(0);
-  };
-
   return (
     <Box
       sx={{
@@ -111,10 +96,9 @@ const AmountEntry = () => {
         flexDirection: "column",
         alignItems: "center",
         padding: 2,
-        pt:0,
-        pb:0,
-        backgroundColor: "white",
-        color: "black",
+        backgroundColor: "#1976d2",
+        minHeight: "94vh",
+        color: "#fff",
       }}
     >
       {/* Header */}
@@ -126,7 +110,7 @@ const AmountEntry = () => {
         p={2}
       >
         <IconButton
-          sx={{ color: "black" }}
+          sx={{ color: "#fff" }}
           onClick={
             () =>
               navigate("/recent-activity", {
@@ -145,12 +129,12 @@ const AmountEntry = () => {
         alignItems="center"
         sx={{
           padding: 2,
-          pt: 0,
+          mb: 4,
         }}
       >
         <Avatar
           src={userData.profileUrl}
-          sx={{ width: 60, height: 60, bgcolor: "#FFD700", mb: 1 }}
+          sx={{ width: 80, height: 80, bgcolor: "#FFD700", mb: 1 }}
         >
           {!userData?.profileUrl && userData?.name?.charAt(0)}
         </Avatar>
@@ -169,7 +153,7 @@ const AmountEntry = () => {
       <Typography
         variant="h3"
         align="center"
-        sx={{ fontWeight: "bold", ml: 1, color: "black" }}
+        sx={{ fontWeight: "bold", ml: 1, color: "#ffffff" }}
       >
         {currencySymbol} {willReceiveAmount.toFixed(2) || "0"}
       </Typography>
@@ -184,18 +168,18 @@ const AmountEntry = () => {
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
-              <span style={{ color: "black" }}>{userInfo?.currency}</span>
+              <span style={{ color: "white" }}>{userInfo?.currency}</span>
             </InputAdornment>
           ),
           style: {
             fontSize: 20,
             textAlign: "center",
-            color: "black",
+            color: "#fff",
           },
         }}
         sx={{
           backgroundColor: "transparent",
-          color: "black",
+          color: "#fff",
           maxWidth: "300px",
           mb: 3,
           mt: 5,
@@ -221,76 +205,21 @@ const AmountEntry = () => {
         {note || "What is this for?"}
       </Button>
 
-      {/* Custom Keypad */}
-      <Box
+      {/* Floating Next Button */}
+      <IconButton
+        onClick={handleNext}
         sx={{
-          width: "100%",
-          maxWidth: 400,
-          backgroundColor: "#1565c0",
-          borderRadius: 4,
-          padding: 2,
-          mt: 2,
+          backgroundColor: "#fff",
+          color: "#1976d2",
+          width: 60,
+          height: 60,
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+          position: "absolute",
+          bottom: 40,
         }}
       >
-        <Grid container spacing={2} justifyContent="center">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, "⌫"].map((key, index) => (
-            <Grid item xs={6} key={index}>
-              <Button
-                onClick={() =>
-                  key === "⌫"
-                    ? handleClearAmount()
-                    : handleAmountInput(key.toString())
-                }
-                sx={{
-                  width: "100%",
-                  height: 60,
-                  backgroundColor: key === "⌫" ? "#333" : "transpernet",
-                  color: "#fff",
-                  fontSize: "1.5rem",
-                  
-                }}
-              >
-                {key}
-              </Button>
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* Pay and Request Buttons */}
-        <Box display="flex" justifyContent="space-between" mt={3}>
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{
-              fontWeight: "bold",
-              backgroundColor: "#fff",
-              color: "#000",
-              borderRadius: 2,
-              height: 50,
-              mx: 1,
-            }}
-            onClick={handleNext}
-          >
-            Pay
-          </Button>
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{
-              fontWeight: "bold",
-              backgroundColor: "#fff",
-              color: "#000",
-              borderRadius: 2,
-              height: 50,
-              mx: 1,
-            }}
-          >
-            Request
-          </Button>
-        </Box>
-      </Box>
-
-      {/* Floating Next Button */}
+        ➔
+      </IconButton>
     </Box>
   );
 };
