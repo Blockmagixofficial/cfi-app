@@ -106,7 +106,8 @@ const AmountEntry = () => {
         display="flex"
         alignItems="center"
         justifyContent="flex-start"
-        width="100%"
+        width="98vw"
+        maxWidth={350}
         p={2}
       >
         <IconButton

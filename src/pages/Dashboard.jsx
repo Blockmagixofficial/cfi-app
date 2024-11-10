@@ -36,19 +36,7 @@ import img5 from "../assets/001.jpg";
 import img6 from "../assets/002.jpg";
 import img7 from "../assets/003.jpg";
 import axiosInstance from "../utils/axios";
-
-// Animation for bounce effect
-const bounce = keyframes`
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-8px);
-  }
-  60% {
-    transform: translateY(-4px);
-  }
-`;
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -59,11 +47,9 @@ const Dashboard = () => {
     navigate("/recent-activity");
   };
 
-
   const handleProfile = () => {
     navigate("/profile");
   };
-
 
   const sliderSettings = {
     dots: true,
@@ -104,53 +90,60 @@ const Dashboard = () => {
         alignItems: "center",
         padding: 1,
         pb: 0,
-        pt:0,
+        pt: 0,
         minHeight: "100%",
+        top: 0,
+        width: "92vw",
       }}
     >
       {/* Header */}
       <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="space-between"
-      width="100%"
-      p={2}
-      sx={{
-        backgroundColor: "#F0F0F5", // Blue background color
-        position: "sticky",
-        top: 0,
-        zIndex: 1000, // Ensures header stays above other content
-      }}
-    >
-      <Box display="flex" alignItems="center" gap={2} onClick={handleProfile}>
-        <Avatar
-          src={userInfo?.profileUrl}
-          alt="Avatar"
-          sx={{ width: 50, height: 50 }}
-
-        
-        />
-        <Box>
-          <Typography variant="h6" color="black">{userInfo?.name || 'Add Address'}</Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ color: 'black' }}>
-            {userInfo?.ucpiId || 'Ambejogai Subdistrict'}
-          </Typography>
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        width="100%"
+        p={2}
+        sx={{
+          backgroundColor: "#F0F0F5", // Blue background color
+          position: "sticky",
+          top: 0,
+          mt:-2,
+          zIndex: 1000, // Ensures header stays above other content
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={2} onClick={handleProfile}>
+          <Avatar
+            src={userInfo?.profileUrl}
+            alt="Avatar"
+            sx={{ width: 50, height: 50 }}
+          />
+          <Box>
+            <Typography variant="h6" color="black">
+              {userInfo?.name || "Add Address"}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              sx={{ color: "black" }}
+            >
+              {userInfo?.ucpiId || "Ambejogai Subdistrict"}
+            </Typography>
+          </Box>
+        </Box>
+        <Box display="flex" alignItems="center" gap={2}>
+          <IconButton>
+            <HelpOutlineIcon sx={{ color: "black" }} />
+          </IconButton>
+          {/* Add more icons as needed here */}
         </Box>
       </Box>
-      <Box display="flex" alignItems="center" gap={2}>
-        <IconButton>
-          <Search sx={{ color: 'black' }} />
-        </IconButton>
-        {/* Add more icons as needed here */}
-      </Box>
-    </Box>
 
       {/* Welcome Message */}
 
       {/* Slider Section */}
       <Slider
         {...sliderSettings}
-        style={{ width: "100%", maxWidth: 400, marginTop: 20 }}
+        style={{ width: "100%", maxWidth: 350, marginTop: 20 }}
       >
         {[img5, img6, img7].map((imgSrc, index) => (
           <Box
@@ -178,7 +171,7 @@ const Dashboard = () => {
       <Card
         sx={{
           width: "100%",
-          maxWidth: 400,
+          maxWidth: 350,
           mt: 3,
           p: 2,
           borderRadius: 4,
@@ -265,7 +258,7 @@ const Dashboard = () => {
       <Box
         sx={{
           width: "100%",
-          maxWidth: 400,
+          maxWidth: 350,
           mt: 3,
           p: 2,
           bottom: 0,
