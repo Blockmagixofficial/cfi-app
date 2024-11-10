@@ -19,16 +19,9 @@ import axiosInstance from "../utils/axios";
 const PaymentConfirmation = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const {
-    name,
-    currency,
-    willReceiveAmount,
-    amount,
-    note,
-    selectedBank,
-    fee,
-  } = state || {};
-  console.log("selectedBank",willReceiveAmount);
+  const { name, currency, willReceiveAmount, amount, note, selectedBank, fee } =
+    state || {};
+  console.log("selectedBank", willReceiveAmount);
   const [banks, setBanks] = useState([]);
   const [currentBank, setCurrentBank] = useState(selectedBank || null);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
@@ -61,7 +54,13 @@ const PaymentConfirmation = () => {
 
   const handleBankSelection = () => {
     navigate("/bank-selection", {
-      state: { selectedBank: currentBank, willReceiveAmount, name, currency, amount }, // Pass the currently selected bank to BankSelection
+      state: {
+        selectedBank: currentBank,
+        willReceiveAmount,
+        name,
+        currency,
+        amount,
+      }, // Pass the currently selected bank to BankSelection
     });
   };
 
@@ -73,7 +72,7 @@ const PaymentConfirmation = () => {
         selectedBank: currentBank,
         willReceiveAmount,
         amount,
-        fee
+        fee,
       },
     });
   };
@@ -108,17 +107,16 @@ const PaymentConfirmation = () => {
     return (
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '80vh'
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
         }}
       >
         <CircularProgress />
       </div>
     );
   }
-  
 
   if (error) {
     return (
