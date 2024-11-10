@@ -93,6 +93,14 @@ const RecentActivity = () => {
     setSnackbarOpen(true); 
   };
 
+
+
+
+  const handleBack = () => {
+    navigate("/dashboard");
+  };
+
+
   return (
     <Box
       sx={{
@@ -124,7 +132,7 @@ const RecentActivity = () => {
       >
         <IconButton
           sx={{ backgroundColor: "#e0e3e7" }}
-          onClick={() => navigate("/recent-activity", { state: { amount } })}
+          onClick={handleBack}
         >
           <ArrowBackIcon />
         </IconButton>
