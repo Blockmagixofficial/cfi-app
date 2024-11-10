@@ -106,7 +106,6 @@ const Dashboard = () => {
         pb: 0,
         pt:0,
         minHeight: "100%",
-        width:"100%"
       }}
     >
       {/* Header */}
