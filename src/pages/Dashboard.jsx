@@ -115,7 +115,12 @@ const Dashboard = () => {
       justifyContent="space-between"
       width="100%"
       p={2}
-      sx={{ backgroundColor: '#191970' }} // Blue background color
+      sx={{
+        backgroundColor: "#F0F0F5", // Blue background color
+        position: "sticky",
+        top: 0,
+        zIndex: 1000, // Ensures header stays above other content
+      }}
     >
       <Box display="flex" alignItems="center" gap={2} onClick={handleProfile}>
         <Avatar
@@ -126,15 +131,15 @@ const Dashboard = () => {
         
         />
         <Box>
-          <Typography variant="h6" color="white">{userInfo?.name || 'Add Address'}</Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ color: '#B0B0E0' }}>
+          <Typography variant="h6" color="black">{userInfo?.name || 'Add Address'}</Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ color: 'black' }}>
             {userInfo?.ucpiId || 'Ambejogai Subdistrict'}
           </Typography>
         </Box>
       </Box>
       <Box display="flex" alignItems="center" gap={2}>
         <IconButton>
-          <Search sx={{ color: 'white' }} />
+          <Search sx={{ color: 'black' }} />
         </IconButton>
         {/* Add more icons as needed here */}
       </Box>
