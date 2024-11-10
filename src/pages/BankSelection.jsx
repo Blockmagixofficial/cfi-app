@@ -46,6 +46,9 @@ const BankSelection = () => {
 
   const handleBack = () => {
     setSelectedBank(null);
+    navigate("/payment-confirmation", {
+      state: { selectedBank, name, currency, willReceiveAmount, note, amount, fee },
+    });
   };
 
   const handleActivateUPI = () => {
