@@ -9,6 +9,8 @@ import BankSelectionDark from "./pages/BankSelection";
 import PaymentConfirmation from "./pages/PaymentConfirmation";
 import PaymentScreen from "./pages/PaymentScreen";
 import ProfilePage from "./pages/ProfilePage";
+import PinSetupPrompt from "./pages/PinSetupPrompt";
+import CheckBalanceScreen from "./pages/CheckBalanceScreen";
 
 function App() {
   const navigate = useNavigate();
@@ -39,6 +41,10 @@ function App() {
       <Route path="/profile" element={<ProfilePage />} />
 
       <Route path="/recent-activity" element={<RecentActivity />} />
+      <Route path="/pin-setup" element={<PinSetupPrompt />} />
+      <Route path="/check-balance" element={<CheckBalanceScreen />} />
+
+
       <Route path="/amount-entry/:name" element={<AmountEntry />} />
       <Route path="/bank-selection" element={<BankSelectionDark />} />
       <Route path="/payment-confirmation" element={<PaymentConfirmation />} />

@@ -9,7 +9,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { clearUser } from "../stores/userSlice";
-import { QRCodeSVG } from "qrcode.react"; 
+import { QRCodeSVG } from "qrcode.react";
 
 export default function ProfilePage() {
   const userInfo = useSelector((state) => state.user.userInfo);
@@ -20,6 +20,9 @@ export default function ProfilePage() {
     navigate("/dashboard");
   };
 
+  const handlePinSetup = () => {
+    navigate("/pin-setup");
+  };
   const handleLogout = () => {
     localStorage.clear();
     dispatch(clearUser());
@@ -48,6 +51,7 @@ export default function ProfilePage() {
         </IconButton>
       </Box>
 
+   
       {/* Profile Section */}
       <Box
         display="flex"
@@ -78,6 +82,25 @@ export default function ProfilePage() {
         </IconButton>
       </Box>
 
+
+      <Box
+        display="flex"
+        alignItems="center"
+        p={2}
+        sx={{
+          backgroundColor: "#F0F0F5",
+          borderRadius: 2,
+          mb: 2,
+          mt: 4,
+        }}
+        onClick={handlePinSetup}
+      >
+        <Typography>SetUp MPIN For Transaction</Typography>
+
+        <IconButton sx={{ marginLeft: "auto", color: "#191970" }}>
+          <ArrowForwardIos />
+        </IconButton>
+      </Box>
       {/* Receive Money Section */}
       <Box
         display="flex"
