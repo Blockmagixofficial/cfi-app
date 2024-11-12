@@ -21,7 +21,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import PersonIcon from "@mui/icons-material/Person";
 import img1 from "../assets/qrc.png";
 import img2 from "../assets/contact.png";
@@ -38,6 +38,7 @@ import { fetchUserData } from "../stores/receiverSlice";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.user.userInfo);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); 
@@ -46,6 +47,7 @@ const Dashboard = () => {
 
   const handleScan = (data) => {
     if (data) {
+      console.log("Scanned Data:", data);
       dispatch(fetchUserData(data)); // Fetch user data by UCPI ID
       setShowScanner(false); // Close the scanner
     }
@@ -208,7 +210,7 @@ const Dashboard = () => {
               style={{ width: "100%" }}
             />
             <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-              Align the QR code within the frame to scan
+            QR code within the frame to scan
             </Typography>
           </Box>
         </Box>

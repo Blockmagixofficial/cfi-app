@@ -9,7 +9,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { clearUser } from "../stores/userSlice";
-import { QRCodeSVG } from "qrcode.react"; // Import QRCode component
+import { QRCodeSVG } from "qrcode.react"; 
 
 export default function ProfilePage() {
   const userInfo = useSelector((state) => state.user.userInfo);
