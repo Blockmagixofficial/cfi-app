@@ -9,6 +9,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { clearUser } from "../stores/userSlice";
+import { QRCodeSVG } from "qrcode.react"; // Import QRCode component
 
 export default function ProfilePage() {
   const userInfo = useSelector((state) => state.user.userInfo);
@@ -19,11 +20,10 @@ export default function ProfilePage() {
     navigate("/dashboard");
   };
 
-
   const handleLogout = () => {
     localStorage.clear();
     dispatch(clearUser());
-    navigate('/signin');
+    navigate("/signin");
   };
 
   return (
@@ -81,6 +81,7 @@ export default function ProfilePage() {
       {/* Receive Money Section */}
       <Box
         display="flex"
+        flexDirection="column"
         alignItems="center"
         p={2}
         sx={{
@@ -97,9 +98,11 @@ export default function ProfilePage() {
             UCPI ID: {userInfo?.ucpiId}
           </Typography>
         </Box>
-        <IconButton sx={{ marginLeft: "auto", color: "#191970" }}>
-          <ArrowForwardIos />
-        </IconButton>
+
+        {/* QR Code for UCPI ID */}
+        <Box mt={2}>
+          <QRCodeSVG value={userInfo?.ucpiId} size={150} level="H" />,
+        </Box>
       </Box>
 
       {/* Logout Section */}
@@ -113,10 +116,7 @@ export default function ProfilePage() {
         }}
       >
         <Logout sx={{ color: "#FF5A5F", mr: 1 }} />
-        <Button
-          sx={{ color: "#FF5A5F" }}
-          onClick={handleLogout}
-        >
+        <Button sx={{ color: "#FF5A5F" }} onClick={handleLogout}>
           LOGOUT
         </Button>
       </Box>

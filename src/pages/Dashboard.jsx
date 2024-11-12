@@ -12,19 +12,16 @@ import {
   List,
   ListItem,
   ListItemText,
+  Modal,
 } from "@mui/material";
-import { Search, ArrowDownward } from "@mui/icons-material";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import SettingsIcon from "@mui/icons-material/Settings";
+import { Close as CloseIcon } from "@mui/icons-material";
+import { Scanner } from "@yudiel/react-qr-scanner";
 import Slider from "react-slick";
-import { css, keyframes } from "@emotion/react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
-import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
 import PersonIcon from "@mui/icons-material/Person";
 import img1 from "../assets/qrc.png";
 import img2 from "../assets/contact.png";
@@ -42,7 +39,15 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const userInfo = useSelector((state) => state.user.userInfo);
   const [paymentHistory, setPaymentHistory] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // State for search input
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const [showScanner, setShowScanner] = useState(false);
+
+  const handleScan = (data) => {
+    if (data) {
+      console.log("Scanned UCPI ID:", data);
+      setShowScanner(false);
+    }
+  };
 
   const handleNavigation = () => {
     navigate("/recent-activity");
@@ -133,14 +138,77 @@ const Dashboard = () => {
             </Typography>
           </Box>
         </Box>
+
         <Box display="flex" alignItems="center" gap={2}>
           <IconButton>
             <HelpOutlineIcon sx={{ color: "black" }} />
           </IconButton>
-          {/* Add more icons as needed here */}
+          <IconButton onClick={() => setShowScanner(!showScanner)}>
+            <QrCodeScannerIcon sx={{ color: "black" }} />
+          </IconButton>
         </Box>
       </Box>
+      {showScanner && (
+        <Box
+          mt={2}
+          sx={{
+            width: "100%",
+            maxWidth: 350,
+            zIndex: 999999,
+            position: "absolute",
+          }}
+        ></Box>
+      )}
 
+      <Modal
+        open={showScanner}
+        onClose={() => setShowScanner(false)}
+        aria-labelledby="qr-scanner-modal"
+        aria-describedby="qr-scanner-to-scan-ucpi-id"
+      >
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+          bgcolor="rgba(0, 0, 0, 0.8)"
+        >
+          <Box
+            sx={{
+              width: "90%",
+              maxWidth: 400,
+              p: 2,
+              bgcolor: "white",
+              borderRadius: 2,
+              textAlign: "center",
+            }}
+          >
+            <IconButton
+              onClick={() => setShowScanner(false)}
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                color: "gray",
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Scan UCPI ID
+            </Typography>
+
+            <Scanner
+              onScan={(data) => console.log(data)}
+              onDecode={(data) => handleScan(data)}
+              constraints={{ facingMode: "environment" }}
+            />
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+              Align the QR code within the frame to scan
+            </Typography>
+          </Box>
+        </Box>
+      </Modal>
       {/* Welcome Message */}
 
       {/* Slider Section */}
