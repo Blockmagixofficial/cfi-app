@@ -34,6 +34,7 @@ import img6 from "../assets/002.jpg";
 import img7 from "../assets/003.jpg";
 import axiosInstance from "../utils/axios";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { fetchUserData } from "../stores/receiverSlice";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -41,13 +42,22 @@ const Dashboard = () => {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); 
   const [showScanner, setShowScanner] = useState(false);
+  const { userData, error } = useSelector((state) => state.receiver);
 
   const handleScan = (data) => {
     if (data) {
-      console.log("Scanned UCPI ID:", data);
-      setShowScanner(false);
+      dispatch(fetchUserData(data)); // Fetch user data by UCPI ID
+      setShowScanner(false); // Close the scanner
     }
   };
+
+  const handleCloseScanner = () => {
+    setShowScanner(false);
+    dispatch(clearReceiverData()); // Clear any previous user data
+  };
+
+
+ 
 
   const handleNavigation = () => {
     navigate("/recent-activity");
@@ -105,64 +115,58 @@ const Dashboard = () => {
       }}
     >
       {/* Header */}
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        width="100%"
-        p={2}
-        sx={{
-          backgroundColor: "#F0F0F5",
-          position: "sticky",
-          top: 0,
-          mt: -2,
-          zIndex: 1000,
-        }}
-      >
-        <Box display="flex" alignItems="center" gap={2} onClick={handleProfile}>
-          <Avatar
-            src={userInfo?.profileUrl}
-            alt="Avatar"
-            sx={{ width: 50, height: 50 }}
-          />
-          <Box>
-            <Typography variant="h6" color="black">
-              {userInfo?.name || "Add Address"}
-            </Typography>
-            <Typography
-              variant="body2"
-              color="textSecondary"
-              sx={{ color: "black" }}
-            >
-              {userInfo?.ucpiId || "Ambejogai Subdistrict"}
-            </Typography>
-          </Box>
-        </Box>
+  
 
-        <Box display="flex" alignItems="center" gap={2}>
-          <IconButton>
-            <HelpOutlineIcon sx={{ color: "black" }} />
-          </IconButton>
-          <IconButton onClick={() => setShowScanner(!showScanner)}>
-            <QrCodeScannerIcon sx={{ color: "black" }} />
-          </IconButton>
+
+      <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      width="100%"
+      p={2}
+      sx={{
+        backgroundColor: "#F0F0F5",
+        position: "sticky",
+        top: 0,
+        mt: -2,
+        zIndex: 1000,
+      }}
+    >
+      {/* Profile Info */}
+      <Box display="flex" alignItems="center" gap={2} onClick={handleProfile}>
+        <Avatar
+          src={userInfo?.profileUrl}
+          alt="Avatar"
+          sx={{ width: 50, height: 50 }}
+        />
+        <Box>
+          <Typography variant="h6" color="black">
+            {userInfo?.name || "Add Address"}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            sx={{ color: "black" }}
+          >
+            {userInfo?.ucpiId || "Ambejogai Subdistrict"}
+          </Typography>
         </Box>
       </Box>
-      {showScanner && (
-        <Box
-          mt={2}
-          sx={{
-            width: "100%",
-            maxWidth: 350,
-            zIndex: 999999,
-            position: "absolute",
-          }}
-        ></Box>
-      )}
 
+      {/* Icons for Help and QR Code Scanner */}
+      <Box display="flex" alignItems="center" gap={2}>
+        <IconButton>
+          <HelpOutlineIcon sx={{ color: "black" }} />
+        </IconButton>
+        <IconButton onClick={() => setShowScanner(true)}>
+          <QrCodeScannerIcon sx={{ color: "black" }} />
+        </IconButton>
+      </Box>
+
+      {/* QR Code Scanner in Modal */}
       <Modal
         open={showScanner}
-        onClose={() => setShowScanner(false)}
+        onClose={handleCloseScanner}
         aria-labelledby="qr-scanner-modal"
         aria-describedby="qr-scanner-to-scan-ucpi-id"
       >
@@ -181,10 +185,11 @@ const Dashboard = () => {
               bgcolor: "white",
               borderRadius: 2,
               textAlign: "center",
+              position: "relative",
             }}
           >
             <IconButton
-              onClick={() => setShowScanner(false)}
+              onClick={handleCloseScanner}
               sx={{
                 position: "absolute",
                 top: 8,
@@ -197,11 +202,10 @@ const Dashboard = () => {
             <Typography variant="h6" sx={{ mb: 2 }}>
               Scan UCPI ID
             </Typography>
-
             <Scanner
-              onScan={(data) => console.log(data)}
-              onDecode={(data) => handleScan(data)}
-              constraints={{ facingMode: "environment" }}
+              onDecode={handleScan}
+              onError={(err) => console.error("Error scanning QR code: ", err)}
+              style={{ width: "100%" }}
             />
             <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
               Align the QR code within the frame to scan
@@ -209,6 +213,71 @@ const Dashboard = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Display Fetched User Data */}
+      {userData && (
+        <Card
+          sx={{
+            width: "100%",
+            maxWidth: 400,
+            mt: 3,
+            p: 2,
+            borderRadius: 4,
+            boxShadow: 3,
+            backgroundColor: "#ffffff",
+          }}
+        >
+          <Box display="flex" alignItems="center">
+            <Avatar
+              src={userData?.profileUrl}
+              sx={{ bgcolor: "#FFD700", mr: 2, width: 46, height: 46 }}
+            >
+              {!userData?.profileUrl && userData.name.charAt(0)}{" "}
+            </Avatar>
+            <Box>
+              <Box display="flex" alignItems="center">
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  {userData.bankDetails.name}
+                </Typography>
+                {userData.bankDetails.verified && (
+                  <IconButton sx={{ ml: 1, color: "green" }}>
+                    <VerifiedIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
+              <Typography variant="body2" color="textSecondary">
+                <strong>{userData.ucpiId}</strong> - {userData.bankDetails.name}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {userData.bankDetails.bankName} - Linked on UPI
+              </Typography>
+            </Box>
+          </Box>
+        </Card>
+      )}
+
+      {/* Error Handling */}
+      {error && (
+        <Card
+          sx={{
+            width: "100%",
+            maxWidth: 350,
+            mt: 2,
+            p: 2,
+            borderRadius: 4,
+            boxShadow: 3,
+            backgroundColor: "#ffffff",
+          }}
+        >
+          <Typography variant="body2" color="error">
+            {error}
+          </Typography>
+        </Card>
+      )}
+    </Box>
+
+
+  
       {/* Welcome Message */}
 
       {/* Slider Section */}
