@@ -90,8 +90,10 @@ const PaymentConfirmation = () => {
     setEnteredPin(enteredPin.slice(0, -1));
   };
 
+
+
   const handlePinSubmit = () => {
-    const correctPin = "1234"; // Example correct PIN
+    const correctPin = localStorage.getItem("userPin");
     if (enteredPin === correctPin) {
       setShowBalance(true);
       setPinDialogOpen(false);

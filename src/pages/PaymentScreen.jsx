@@ -88,15 +88,19 @@ const PaymentScreen = () => {
     setEnteredPin(enteredPin.slice(0, -1));
   };
 
+
+  
   const handlePinSubmit = async () => {
-    if (enteredPin.length !== 4) {
-      setError("Please enter a 4-digit PIN");
+    const correctPin = localStorage.getItem("userPin");
+    console.log(" correctPin", correctPin);
+    if (enteredPin !== correctPin) {  // Check if entered PIN does not match
+      setError("Incorrect PIN. Please try again.");
       return;
     }
-
+  
     setError(null);
     setIsLoading(true);
-
+  
     const payload = {
       amount: parseInt(amount, 0),
       bankId: selectedBank?._id || "",
@@ -105,12 +109,12 @@ const PaymentScreen = () => {
       userNote: note || "Payment",
       fees: fee || 0,
     };
-
+  
     try {
       // Make the API call to transfer funds
       const response = await axiosInstance.post("/user/transferFunds", payload);
       console.log("response.data.data", response.data.data);
-
+  
       if (response.data) {
         setTransactionID(response.data.data); // Store transaction ID
         console.log("response.data.data", response.data.data);
@@ -123,6 +127,7 @@ const PaymentScreen = () => {
       setIsLoading(false);
     }
   };
+  
 
   // Loading Screen
   if (isLoading) {
@@ -208,7 +213,7 @@ const PaymentScreen = () => {
         startIcon={<DoneIcon />}
         onClick={() => navigate("/dashboard")}
       >
-        back to hone
+        back to home
       </Button>
     </Box>
     );
