@@ -50,9 +50,10 @@ export default function ProfilePage() {
           });
         } else {
           // If on desktop, share via WhatsApp Web
-          const whatsappURL = `https://web.whatsapp.com/send?text=${encodeURIComponent(
-            message
-          )}`;
+         
+
+          const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}&media=${encodeURIComponent(image)}`;
+      
           window.open(whatsappURL, "_blank");
         }
       } catch (error) {
