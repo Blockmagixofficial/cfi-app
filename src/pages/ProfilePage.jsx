@@ -30,31 +30,30 @@ export default function ProfilePage() {
     return /Mobi|Android/i.test(navigator.userAgent);
   };
 
- 
-
-
-  const shareQRCodeOnWhatsApp = async () => {
+  const shareQRCode = async () => {
     const qrElement = document.getElementById("qrCode");
-  
+
     if (qrElement) {
       const canvas = await html2canvas(qrElement);
-      const image = await canvas.toDataURL("image/png");
+      const imageDataUrl = canvas.toDataURL("image/png");
+      const blob = await (await fetch(imageDataUrl)).blob();
+      const file = new File([blob], "QRCode.png", { type: "image/png" });
       const message = `Here's my UCPI ID QR Code for receiving money!`;
-  
+
       try {
-        if (navigator.share) {
-          // Using the native share API if supported
+        if (navigator.share && isMobileDevice()) {
+          // If on mobile and Web Share API is supported, use native share
           await navigator.share({
             title: "UCPI QR Code",
             text: message,
-            files: [
-              new File([await (await fetch(image)).blob()], "QRCode.png", {
-                type: "image/png",
-              }),
-            ],
+            files: [file],
           });
         } else {
-          alert("Sharing is not supported on this device.");
+          // If on desktop, share via WhatsApp Web
+          const whatsappURL = `https://web.whatsapp.com/send?text=${encodeURIComponent(
+            message
+          )}`;
+          window.open(whatsappURL, "_blank");
         }
       } catch (error) {
         console.error("Error sharing:", error);
@@ -62,7 +61,7 @@ export default function ProfilePage() {
       }
     }
   };
-  
+
   return (
     <Box sx={{ backgroundColor: "white", minHeight: "80vh" }}>
       {/* Header */}
@@ -120,8 +119,8 @@ export default function ProfilePage() {
         </Box>
 
         {/* Share on WhatsApp Button */}
-        <Button variant="contained" color="primary" onClick={shareQRCodeOnWhatsApp} sx={{ mt: 2 }}>
-          Share QR Code on WhatsApp
+        <Button variant="contained" color="primary" onClick={shareQRCode} sx={{ mt: 2 }}>
+          Share QR Code
         </Button>
       </Box>
 
