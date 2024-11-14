@@ -124,7 +124,7 @@ const Dashboard = () => {
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
-
+  console.log(userInfo?.currency,")()()")
   return (
     <Box
       sx={{
