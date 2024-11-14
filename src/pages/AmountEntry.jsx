@@ -83,7 +83,6 @@ const AmountEntry = () => {
   const handleAmount = (value) => {
     let feeOnAmount = value * feeCalculation;
     let valueAfterFee = value - feeOnAmount;
-    console.log(value, feeOnAmount, valueAfterFee);
     setAmount(value);
     setWillReceiveAmount(valueAfterFee * conversionRate);
     setFee(feeOnAmount);
