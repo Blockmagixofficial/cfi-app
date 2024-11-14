@@ -221,24 +221,18 @@ const Dashboard = () => {
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Scan UCPI ID
               </Typography>
-           
 
+              <Scanner
+                onScan={(result, error) => {
+                  if (!!result) {
+                    setData(result[0]?.rawValue);
+                  }
 
-<Scanner
-
-
-onScan={(result, error) => {
-  if (!!result) {
-    setData(result[0]?.rawValue);
-  }
-
-  if (!!error) {
-    console.info(error);
-  }
-}}
-  
-  
-  />
+                  if (!!error) {
+                    console.info(error);
+                  }
+                }}
+              />
 
               <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
                 QR code within the frame to scan
@@ -360,7 +354,7 @@ onScan={(result, error) => {
         <Grid container spacing={2} justifyContent="center">
           <Grid item>
             <Box
-              onClick={handleNavigation}
+              onClick={() => setShowScanner(true)}
               sx={{
                 display: "flex",
                 flexDirection: "column",
