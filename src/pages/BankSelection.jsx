@@ -29,7 +29,7 @@ const BankSelection = () => {
       try {
         const response = await axiosInstance.get("/user/getUserBankList");
         setBanks(response.data);
-        console.log("Banks", response.data);
+        // console.log("Banks", response.data);
         setLoading(false);
       } catch (error) {
         setError("Failed to fetch bank data.");

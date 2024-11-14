@@ -39,14 +39,14 @@ const PaymentScreen = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { name, amount, note, selectedBank, fee = 0.1 } = state || {};
-
+  const userInfo = useSelector((state) => state.user.userInfo);
   const willReceiveAmount = amount - amount * fee; // Calculate net amount receiver will get
 
   const [timestamp, setTimestamp] = useState(formatDate(new Date()));
   const [transactionID, setTransactionID] = useState("");
   const screenshotRef = useRef(null);
   const { userData } = useSelector((state) => state.receiver);
-  const userInfo = useSelector((state) => state.user.userInfo);
+  // const userInfo = useSelector((state) => state.user.userInfo);
 
   const dispatch = useDispatch();
 
@@ -76,7 +76,7 @@ const PaymentScreen = () => {
       window.open(whatsappURL, "_blank");
     }
   };
-
+  // console.log(amount,"55555")
   useEffect(() => {
     if (isSuccess) {
       const successAudio = new Audio(SuccessSound);
@@ -167,7 +167,8 @@ const PaymentScreen = () => {
           variant="h4"
           sx={{ fontWeight: "bold", color: "green", mb: 2 }}
         >
-          ₹{Math.abs(willReceiveAmount.toFixed(2))}.00
+          {userInfo?.currency === "INR" ? "₹" : "$"} {(Number(amount) + Number(amount / 10)).toFixed(2)}
+
         </Typography>
         <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
           Paid to {transactionID?.recipientOrSenderName}
@@ -211,8 +212,9 @@ const PaymentScreen = () => {
       </Box>
     );
   }
-
+  console.log(userInfo?.currency,"???")
   return (
+
     <Box
       sx={{
         display: "flex",
@@ -270,11 +272,11 @@ const PaymentScreen = () => {
           variant="h4"
           sx={{ fontWeight: "bold", color: "#1976d2", mb: 2 }}
         >
-         {userInfo?.currency} {willReceiveAmount.toFixed(2)}
+         {userInfo?.currency === "INR" ? "₹" : "$"} {(Number(amount) + Number(amount / 10)).toFixed(2)}
         </Typography>
 
         <Typography variant="body2" sx={{ color: "#888", fontSize: "0.875rem", textAlign: "center" }}>
-          * Amount shown reflects platform fee deduction
+          * Amount shown reflects platform fee Addition
         </Typography>
 
         <Typography variant="body2" sx={{ mb: 1, fontWeight: "bold" }}>

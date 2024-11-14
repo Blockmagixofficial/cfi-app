@@ -101,8 +101,8 @@ const RecentActivity = () => {
     navigate("/dashboard");
   };
 
-console.log(userData,"###");
-console.log(userInfo,"::::;;")
+// console.log(userData,"###");
+// console.log(userInfo,"::::;;")
   return (
     <Box
       sx={{

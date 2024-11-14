@@ -62,7 +62,7 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
 
   const handleSubmit = () => {
     const savedPin = localStorage.getItem("userPin");
-    
+
     if (isChangeMode) {
       // Check if old PIN is correct
       if (oldPin !== savedPin) {
@@ -70,11 +70,16 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
         return;
       }
     }
-    
+
     if (pin === confirmPin && pin.length === 4) {
       localStorage.setItem("userPin", pin);
       setSnackbarOpen(true); // Show Snackbar on successful submit
       if (onSubmit) onSubmit(pin);
+
+      // Redirect to recent-activity after setting PIN
+      setTimeout(() => {
+        navigate("/recent-activity");
+      }, 2000); // Delay to allow Snackbar to be displayed
     } else {
       alert("PINs do not match or are not 4 digits");
     }
@@ -95,7 +100,7 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
   };
 
   return (
-    <Box sx={{ backgroundColor: "#f0f4f8", minHeight: "100vh", py: 4,color:"#000" }}>
+    <Box sx={{ backgroundColor: "#f0f4f8", minHeight: "100vh", py: 4, color: "#000" }}>
       {/* Header with Back Button */}
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar>
@@ -158,7 +163,7 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
         </Box>
 
         <Typography variant="body1" fontWeight="medium" sx={{ mb: 1 }}>
-         Confirm {isChangeMode ? "New " : ""}Passcode
+          Confirm {isChangeMode ? "New " : ""}Passcode
         </Typography>
         <Box display="flex" justifyContent="center" gap={1} mb={2}>
           {[...Array(4)].map((_, index) => (
@@ -174,11 +179,7 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
               color="#1976d2"
               fontWeight="bold"
             >
-              {showPin && confirmPin[index]
-                ? confirmPin[index]
-                : confirmPin[index]
-                ? "•"
-                : ""}
+              {showPin && confirmPin[index] ? confirmPin[index] : confirmPin[index] ? "•" : ""}
             </Box>
           ))}
         </Box>
