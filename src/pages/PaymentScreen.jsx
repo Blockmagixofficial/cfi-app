@@ -159,7 +159,7 @@ const PaymentScreen = () => {
         bgcolor="#fff"
       >
         <img
-          src="https://www.abhiyantha.com/trainings/registration/assets/images/Success.gif"
+          src="https://education.uoc.ac.in/images/ezgif.com-crop.gif"
           style={{ height: "200px" }}
           alt="Success"
         />
@@ -268,6 +268,10 @@ const PaymentScreen = () => {
         <Typography variant="body1" sx={{ mb: 1 }}>
           To: {name || "Unknown User"}
         </Typography>
+        
+        <Typography variant="body2" sx={{ color: "#888", fontSize: "0.875rem", textAlign: "center" , fontWeight:"bold"}}>
+          * Platform Fee {(Number(amount / 10)).toFixed(2)}
+        </Typography>
         <Typography
           variant="h4"
           sx={{ fontWeight: "bold", color: "#1976d2", mb: 2 }}
@@ -275,9 +279,6 @@ const PaymentScreen = () => {
          {userInfo?.currency === "INR" ? "₹" : "$"} {(Number(amount) + Number(amount / 10)).toFixed(2)}
         </Typography>
 
-        <Typography variant="body2" sx={{ color: "#888", fontSize: "0.875rem", textAlign: "center" }}>
-          * Amount shown reflects platform fee Addition
-        </Typography>
 
         <Typography variant="body2" sx={{ mb: 1, fontWeight: "bold" }}>
           ENTER PIN
