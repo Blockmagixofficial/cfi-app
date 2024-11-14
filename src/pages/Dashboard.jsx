@@ -167,9 +167,7 @@ const Dashboard = () => {
 
         {/* Icons for Help and QR Code Scanner */}
         <Box display="flex" alignItems="center" gap={2}>
-          <IconButton>
-            <HelpOutlineIcon sx={{ color: "black" }} />
-          </IconButton>
+        
           <IconButton onClick={() => setShowScanner(true)}>
             <QrCodeScannerIcon sx={{ color: "black" }} />
           </IconButton>
