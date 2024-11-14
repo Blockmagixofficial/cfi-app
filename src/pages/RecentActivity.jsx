@@ -315,46 +315,48 @@ console.log(userInfo,"::::;;")
 
           {/* Pay Again Section */}
           <Card
-            sx={{
-              width: "100%",
-              maxWidth: 400,
-              mt: 3,
-              p: 2,
-              borderRadius: 4,
-              boxShadow: 3,
-              backgroundColor: "#ffffff",
-            }}
+  sx={{
+    width: "100%",
+    maxWidth: 400,
+    mt: 3,
+    p: 2,
+    borderRadius: 4,
+    boxShadow: 3,
+    backgroundColor: "#ffffff",
+  }}
+>
+  <Typography variant="h6" align="left" sx={{ mb: 2, fontWeight: "bold" }}>
+    Pay Again
+  </Typography>
+  <Grid container spacing={2} justifyContent="center">
+    {recentContacts
+      // Filter out duplicates based on a unique identifier (e.g., name or profile)
+      .filter((contact, index, self) =>
+        index === self.findIndex(c => c.recipientOrSenderName === contact.recipientOrSenderName)
+      )
+      .slice(0, 6)
+      .map((contact, index) => (
+        <Grid item xs={4} key={index}>
+          <Box
+            textAlign="center"
+            alignItems="center"
+            display="flex"
+            flexDirection="column"
+            onClick={() => handleCopyUcpiId(contact)}
+            sx={{ cursor: "pointer" }}
           >
-            <Typography
-              variant="h6"
-              align="left"
-              sx={{ mb: 2, fontWeight: "bold" }}
-            >
-              Pay Again
+            <Avatar
+              src={contact?.recipientOrSenderProfile}
+              sx={{ width: 60, height: 60 }}
+            />
+            <Typography variant="body2" mt={1}>
+              {contact.recipientOrSenderName}
             </Typography>
-            <Grid container spacing={2} justifyContent="center">
-              {recentContacts.slice(0, 6).map((contact, index) => (
-                <Grid item xs={4} key={index}>
-                  <Box
-                    textAlign="center"
-                    alignItems="center"
-                    display="flex"
-                    flexDirection="column"
-                    onClick={() => handleCopyUcpiId(contact)}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    <Avatar
-                      src={contact?.recipientOrSenderProfile}
-                      sx={{ width: 60, height: 60 }}
-                    />
-                    <Typography variant="body2" mt={1}>
-                      {contact.recipientOrSenderName}
-                    </Typography>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
-          </Card>
+          </Box>
+        </Grid>
+      ))}
+  </Grid>
+</Card>
 
           {/* Recent Activity Section */}
           <Card
