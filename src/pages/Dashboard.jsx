@@ -35,6 +35,7 @@ import img7 from "../assets/003.jpg";
 import axiosInstance from "../utils/axios";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { clearReceiverData, fetchUserData } from "../stores/receiverSlice";
+import { QrReader } from "react-qr-reader";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -43,11 +44,16 @@ const Dashboard = () => {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showScanner, setShowScanner] = useState(false);
+  const [data, setData] = useState(null);
+  console.log("data", data);
+
   const { userData, error } = useSelector((state) => state.receiver);
 
   const handleScan = (data) => {
     if (data) {
-      console.log("Scanned Data:", data); 
+      console.log("Scanned Data:", data);
+      const ucpiId = data.split(":")[1]; // Assuming the UCPI ID is in the format "UCPI:1234567890"
+      setData(ucpiId);
       if (data === userInfo?.ucpiId) {
         console.log("UCPI ID is correct:", data);
 
@@ -76,7 +82,6 @@ const Dashboard = () => {
   const handleProfile = () => {
     navigate("/profile");
   };
-
 
   const handleCheckBalance = () => {
     navigate("/check-balance");
@@ -167,7 +172,6 @@ const Dashboard = () => {
 
         {/* Icons for Help and QR Code Scanner */}
         <Box display="flex" alignItems="center" gap={2}>
-        
           <IconButton onClick={() => setShowScanner(true)}>
             <QrCodeScannerIcon sx={{ color: "black" }} />
           </IconButton>
@@ -212,11 +216,16 @@ const Dashboard = () => {
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Scan UCPI ID
               </Typography>
-              <Scanner
-                onDecode={handleScan}
-                onError={(err) =>
-                  console.error("Error scanning QR code: ", err)
-                }
+              <QrReader
+                onResult={(result, error) => {
+                  if (!!result) {
+                    setData(result?.text);
+                  }
+
+                  if (!!error) {
+                    console.info(error);
+                  }
+                }}
                 style={{ width: "100%" }}
               />
               <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
