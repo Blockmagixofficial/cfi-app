@@ -104,7 +104,7 @@ const SearchVerifiedDetails = () => {
                 {userData?.bankDetails?.accountNumber} - {userData?.bankDetails?.ucpiId}
               </Typography>
               <Typography variant="body2" sx={{ color: "#757575" }}>
-                Bank A/c linked on UPI
+                Bank A/c linked on UCPI
               </Typography>
             </Box>
           </Box>

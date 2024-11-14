@@ -90,7 +90,7 @@ const RecentActivity = () => {
   }, []);
 
   const handleInvalidUpiClick = () => {
-    setSnackbarMessage("Invalid UPI ID"); 
+    setSnackbarMessage("Invalid UCPI ID"); 
     setSnackbarOpen(true); 
   };
 
@@ -264,7 +264,7 @@ console.log(userInfo,"::::;;")
             </Avatar>
             <Box>
               <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                New UPI ID
+                New UCPI ID
               </Typography>
               <Typography variant="body2">{searchInput}</Typography>
             </Box>

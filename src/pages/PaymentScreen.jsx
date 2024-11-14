@@ -261,7 +261,7 @@ const PaymentScreen = () => {
           variant="h6"
           sx={{ fontWeight: "bold", mb: 1, textAlign: "center" }}
         >
-          From - {selectedBank?.bankName || "Unknown Bank"} (UPI)
+          From - {selectedBank?.bankName || "Unknown Bank"} (UCPI)
         </Typography>
         <Typography variant="body1" sx={{ mb: 1 }}>
           To: {name || "Unknown User"}
