@@ -20,8 +20,7 @@ import { useSelector } from "react-redux";
 const PaymentConfirmation = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { name, currency, willReceiveAmount, amount, note, selectedBank, fee } =
-    state || {};
+  const { name, currency, willReceiveAmount, amount, note, selectedBank } = state || {};
   const [banks, setBanks] = useState([]);
   const [currentBank, setCurrentBank] = useState(selectedBank || null);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
@@ -31,14 +30,17 @@ const PaymentConfirmation = () => {
   const [error, setError] = useState(null);
   const { userData } = useSelector((state) => state.receiver);
 
+  // Platform fee calculation (10%)
+  const platformFeePercentage = 0.1;
+  const receiverNetAmount = (willReceiveAmount * (1 - platformFeePercentage)).toFixed(2);
+
   useEffect(() => {
     const fetchBankData = async () => {
       try {
         const response = await axiosInstance.get("/user/getUserBankList");
         const banksData = response.data;
         setBanks(banksData);
-        const defaultBank =
-          banksData.find((bank) => bank.default) || banksData[0];
+        const defaultBank = banksData.find((bank) => bank.default) || banksData[0];
         setCurrentBank(selectedBank || defaultBank);
         setLoading(false);
       } catch (error) {
@@ -58,7 +60,6 @@ const PaymentConfirmation = () => {
         name,
         currency,
         amount,
-        fee,
       },
     });
   };
@@ -69,9 +70,8 @@ const PaymentConfirmation = () => {
         name,
         currency,
         selectedBank: currentBank,
-        willReceiveAmount,
+        receiverNetAmount,
         amount,
-        fee,
       },
     });
   };
@@ -89,8 +89,6 @@ const PaymentConfirmation = () => {
   const handlePinDelete = () => {
     setEnteredPin(enteredPin.slice(0, -1));
   };
-
-
 
   const handlePinSubmit = () => {
     const correctPin = localStorage.getItem("userPin");
@@ -183,7 +181,13 @@ const PaymentConfirmation = () => {
           variant="h3"
           sx={{ fontWeight: "bold", color: "#1976d2", mt: 1 }}
         >
-          {currency === "INR" ? "₹" : "$"} {willReceiveAmount}
+          {currency === "INR" ? "₹" : "$"} {receiverNetAmount}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#888", mt: 0.5, fontSize: "0.875rem", textAlign: "center" }}
+        >
+          * Amount shown reflects a 10% platform fee deduction.
         </Typography>
         {note && (
           <Typography sx={{ color: "#888", mt: 1, textAlign: "center" }}>
@@ -277,105 +281,9 @@ const PaymentConfirmation = () => {
           },
         }}
       >
-        Pay {currency === "INR" ? "₹" : "$"} {willReceiveAmount} with{" "}
+        Pay {currency === "INR" ? "₹" : "$"} {amount} with{" "}
         {currentBank?.bankName}
       </Button>
-
-      {/* PIN Entry Dialog with Numeric Keypad */}
-      <Dialog
-        open={pinDialogOpen}
-        onClose={() => setPinDialogOpen(false)}
-        sx={{
-          "& .MuiDialog-paper": {
-            borderRadius: 3,
-            padding: 3,
-            maxWidth: "350px",
-            backgroundColor: "#fff",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-          },
-          backdropFilter: "blur(4px)",
-        }}
-      >
-        <DialogContent>
-          <Box display="flex" flexDirection="column" alignItems="center">
-            <Typography
-              variant="h6"
-              sx={{ mb: 1, fontWeight: "bold", textAlign: "center" }}
-            >
-              Check Balance
-            </Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-              with {currentBank?.bankName}
-            </Typography>
-
-            {/* Display PIN */}
-            <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
-              {[...Array(4)].map((_, idx) => (
-                <Box
-                  key={idx}
-                  sx={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: "50%",
-                    backgroundColor: enteredPin[idx] ? "#1976d2" : "#e0e0e0",
-                  }}
-                />
-              ))}
-            </Box>
-
-            {/* Numeric Keypad */}
-            <Grid container spacing={2} sx={{ maxWidth: 240 }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, "⌫", 0].map((num, idx) => (
-                <Grid item xs={4} key={idx}>
-                  <Button
-                    onClick={() =>
-                      num === "⌫" ? handlePinDelete() : handlePinInput(num)
-                    }
-                    variant="outlined"
-                    sx={{
-                      width: "100%",
-                      height: 56,
-                      fontSize: "1.2rem",
-                      borderRadius: "50%",
-                      color: "#1976d2",
-                      borderColor: "#1976d2",
-                      "&:hover": {
-                        backgroundColor: "rgba(25, 118, 210, 0.1)",
-                      },
-                    }}
-                  >
-                    {num}
-                  </Button>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-
-          {/* Action Buttons */}
-          <DialogActions sx={{ justifyContent: "center", mt: 2 }}>
-            <Button
-              onClick={() => setPinDialogOpen(false)}
-              sx={{ color: "#d32f2f", fontWeight: "bold" }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handlePinSubmit}
-              sx={{
-                backgroundColor: "#1976d2",
-                fontWeight: "bold",
-                "&:hover": {
-                  backgroundColor: "#1565c0",
-                },
-              }}
-            >
-              Submit
-            </Button>
-          </DialogActions>
-        </DialogContent>
-      </Dialog>
     </Box>
   );
 };

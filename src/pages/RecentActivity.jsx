@@ -36,6 +36,7 @@ const RecentActivity = () => {
   const [recentContacts, setRecentContacts] = useState([]);
   const dispatch = useDispatch();
   const { userData, loading, error } = useSelector((state) => state.receiver);
+  const userInfo = useSelector((state) => state.user.userInfo);
   const [loadingPaymentHistory, setLoadingPaymentHistory] = useState(true);
   const handleCardClick = () => {
     navigate(`/amount-entry/${userData.name}`, { state: { userData } });
@@ -100,7 +101,8 @@ const RecentActivity = () => {
     navigate("/dashboard");
   };
 
-
+console.log(userData,"###");
+console.log(userInfo,"::::;;")
   return (
     <Box
       sx={{
@@ -157,7 +159,7 @@ const RecentActivity = () => {
         }}
       >
         <Typography
-          variant="h6"
+          variant="h6" 
           sx={{
             mb: 2,
             color: "#333",

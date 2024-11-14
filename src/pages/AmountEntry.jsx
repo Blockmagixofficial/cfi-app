@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -6,29 +6,12 @@ import {
   TextField,
   Button,
   IconButton,
-  Select,
-  MenuItem,
-  InputBase,
   InputAdornment,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { styled } from "@mui/system";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import axiosInstance from "../utils/axios";
-// Styled small select component
-const SmallSelect = styled(Select)({
-  marginLeft: 8,
-  backgroundColor: "#fff",
-  borderRadius: 4,
-  fontSize: 16,
-  padding: "2px 8px",
-  color: "#1976d2",
-  "& .MuiSvgIcon-root": {
-    color: "#1976d2",
-  },
-});
 
 const AmountEntry = () => {
   const { name } = useParams();
@@ -36,56 +19,54 @@ const AmountEntry = () => {
   const navigate = useNavigate();
   const userInfo = useSelector((state) => state.user.userInfo);
   const { userData } = useSelector((state) => state.receiver);
-  // const userData = location.state?.userData || {};
 
   const [amount, setAmount] = useState(location.state?.amount || "");
-  const [fee, setFee] = useState(0);
   const [willReceiveAmount, setWillReceiveAmount] = useState(0);
-  const [worldCurrencies, setCurrencies] = useState(null);
   const [conversionRate, setConversionRate] = useState(1);
   const [note, setNote] = useState("");
-  const [currencySymbol, setCurrencySymbol] = useState("$");
-  const [currency, setCurrency] = useState(userData?.currency);
+  const [exchangeRate, setExchangeRate] = useState(null);
+  const [exchangeError, setExchangeError] = useState(null);
 
-  const feeCalculation = 0.1;
-  useState(async () => {
-    console.log({ worldCurrencies });
-    const wc = await axiosInstance.get(`/api/currencies`);
-    if (wc && wc.data) {
-      setCurrencies(wc.data.data);
-      setCurrencySymbol(wc.data.data[userInfo?.currency].symbol);
-      console.log(wc.data.data[userInfo?.currency].symbol, userInfo?.currency);
-    }
-    if (userInfo?.currency != userInfo?.currency) {
-      console.log("inside this boxx");
-      let dd = await axios.get(
-        `https://v6.exchangerate-api.com/v6/8fa5a6ae2ce88bbf3187076e/pair/${userInfo?.currency}/${userInfo?.currency}`
-      );
-      if (dd && dd.data && dd.data.conversion_rate) {
-        setConversionRate(dd.data.conversion_rate);
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      setExchangeError(null);
+      if (userInfo?.currency && userData?.currency) {
+        try {
+          const response = await axios.get(
+            `https://v6.exchangerate-api.com/v6/c3f58e8d3cafa52c9e75e94a/latest/${userInfo.currency}`
+          );
+          
+          if (response.data && response.data.conversion_rates) {
+            const rate = response.data.conversion_rates[userData.currency];
+            if (rate) {
+              setExchangeRate(rate);
+              setConversionRate(rate); // Set conversion rate for amount calculation
+            } else {
+              setExchangeError(`Exchange rate not available for ${userData.currency}`);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching exchange rate:", error);
+          setExchangeError("Unable to fetch live exchange rate");
+        }
+      } else {
+        setExchangeRate(1); // Set to 1 if both currencies are the same
       }
-      // console.log("currency api data", dd.data);
-    }
-
-    console.log("userData at 41", userInfo);
-  }, []);
+    };
+    fetchExchangeRate();
+  }, [userInfo?.currency, userData?.currency]);
 
   const handleNext = () => {
     if (amount) {
-      console.log("Currency:", currency, "Amount:", amount, "Note:", note);
-      // Pass name, amount, note, and currency to the PaymentConfirmation screen
       navigate(`/payment-confirmation`, {
-        state: { name, currency, willReceiveAmount, note, amount, fee },
+        state: { name, currency: userData.currency, willReceiveAmount, note, amount },
       });
     }
   };
 
   const handleAmount = (value) => {
-    let feeOnAmount = value * feeCalculation;
-    let valueAfterFee = value - feeOnAmount;
     setAmount(value);
-    setWillReceiveAmount(valueAfterFee * conversionRate);
-    setFee(feeOnAmount);
+    setWillReceiveAmount((value * conversionRate).toFixed(2)); // Calculate the amount to be received and round to 2 decimal places
   };
 
   return (
@@ -99,7 +80,6 @@ const AmountEntry = () => {
         color: "#fff",
       }}
     >
-      {/* Header */}
       <Box
         display="flex"
         alignItems="center"
@@ -110,12 +90,7 @@ const AmountEntry = () => {
       >
         <IconButton
           sx={{ color: "#fff" }}
-          onClick={
-            () =>
-              navigate("/recent-activity", {
-                state: { willReceiveAmount, userData },
-              }) // Pass the amount back to retain it
-          }
+          onClick={() => navigate("/recent-activity", { state: { willReceiveAmount, userData } })}
         >
           <ArrowBackIcon />
         </IconButton>
@@ -132,7 +107,7 @@ const AmountEntry = () => {
         }}
       >
         <Avatar
-          src={userData.profileUrl}
+          src={userData?.profileUrl}
           sx={{ width: 90, height: 90, bgcolor: "#FFD700", mb: 1 }}
         >
           {!userData?.profileUrl && userData?.name?.charAt(0)}
@@ -142,19 +117,23 @@ const AmountEntry = () => {
         </Typography>
         <Typography variant="body2">{userData?.ucpiId}</Typography>
         <Typography variant="body2">
-          {userData.bankDetails?.bankName} - Linked on UPI
+          {userData?.bankDetails?.bankName} - Linked on UPI
         </Typography>
       </Box>
 
-      <span style={{ fontSize: "14px" }}>ashwini will receive</span>
-      <span style={{ fontSize: "14px" }}>Platform Fee {fee.toFixed(3)} </span>
+      <Typography
+        variant="body1"
+        sx={{ fontSize: "14px", color: "#ffffff", mb: 2 }}
+      >
+        Receiver will receive:
+      </Typography>
 
       <Typography
         variant="h3"
         align="center"
-        sx={{ fontWeight: "bold", ml: 1, color: "#ffffff" }}
+        sx={{ fontWeight: "bold", color: "#ffffff" }}
       >
-        {currencySymbol} {willReceiveAmount.toFixed(2) || "0"}
+        {userData?.currency} {willReceiveAmount || "0.00"}
       </Typography>
 
       <TextField
@@ -185,11 +164,23 @@ const AmountEntry = () => {
         }}
       />
 
+      {/* Exchange Rate Display */}
+      {exchangeRate && (
+        <Typography variant="body2" sx={{ color: "#FFD700", mt: 1 }}>
+          Exchange Rate: 1 {userInfo?.currency} = {exchangeRate} {userData.currency}
+        </Typography>
+      )}
+      {exchangeError && (
+        <Typography variant="body2" sx={{ color: "red", mt: 1 }}>
+          {exchangeError}
+        </Typography>
+      )}
+
       {/* Note Button */}
       <Button
         variant="contained"
         fullWidth
-        onClick={() => setNote("For dinner")} // Example action to add note
+        onClick={() => setNote("For dinner")}
         sx={{
           backgroundColor: "#1565c0",
           color: "#fff",
@@ -204,7 +195,6 @@ const AmountEntry = () => {
         {note || "What is this for?"}
       </Button>
 
-      {/* Floating Next Button */}
       <IconButton
         onClick={handleNext}
         sx={{
