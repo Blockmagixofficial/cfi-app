@@ -36,6 +36,8 @@ import axiosInstance from "../utils/axios";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { clearReceiverData, fetchUserData } from "../stores/receiverSlice";
 import { QrReader } from "react-qr-reader";
+import VerifiedIcon from "@mui/icons-material/CheckCircle";
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -51,24 +53,28 @@ const Dashboard = () => {
 
   const handleScan = (data) => {
     if (data) {
-      console.log("Scanned Data:", data);
       const ucpiId = data.split(":")[1]; // Assuming the UCPI ID is in the format "UCPI:1234567890"
       setData(ucpiId);
-      if (data === userInfo?.ucpiId) {
-        console.log("UCPI ID is correct:", data);
-
-        // Fetch user data with the valid UCPI ID
-        dispatch(fetchUserData(data))
-          .then(() => console.log("Fetched user data successfully."))
-          .catch((err) => console.error("Error fetching user data:", err));
-
-        setShowScanner(false); // Close scanner after a successful scan
-      } else {
-        console.error("Scanned data does not match UCPI ID.");
-        alert("Invalid UCPI ID. Please try again.");
-      }
+      setShowScanner(false); // Close scanner after a successful scan
     }
   };
+
+  useEffect(() => {
+    if (data) {
+      // Fetch user data if valid data is available
+      dispatch(fetchUserData(data))
+        .then(() => {
+          if (userData) {
+            // Navigate to the amount entry page with user's name if data is retrieved
+            navigate(`/amount-entry/${userData.name}`);
+          }
+        })
+        .catch((err) => console.error("Error fetching user data:", err));
+    } else {
+      // Clear user data if no UCPI data is provided
+      dispatch(clearReceiverData());
+    }
+  }, [data, dispatch, userData, navigate]);
 
   const handleCloseScanner = () => {
     setShowScanner(false);
@@ -221,13 +227,14 @@ const Dashboard = () => {
                   if (!!result) {
                     setData(result?.text);
                   }
-
+        
                   if (!!error) {
                     console.info(error);
                   }
                 }}
                 style={{ width: "100%" }}
               />
+
               <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
                 QR code within the frame to scan
               </Typography>
