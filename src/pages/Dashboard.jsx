@@ -35,7 +35,6 @@ import img7 from "../assets/003.jpg";
 import axiosInstance from "../utils/axios";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { clearReceiverData, fetchUserData } from "../stores/receiverSlice";
-import { QrReader } from "react-qr-reader";
 import VerifiedIcon from "@mui/icons-material/CheckCircle";
 
 
@@ -222,18 +221,24 @@ const Dashboard = () => {
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Scan UCPI ID
               </Typography>
-              <QrReader
-                onResult={(result, error) => {
-                  if (!!result) {
-                    setData(result?.text);
-                  }
-        
-                  if (!!error) {
-                    console.info(error);
-                  }
-                }}
-                style={{ width: "100%" }}
-              />
+           
+
+
+<Scanner
+
+
+onScan={(result, error) => {
+  if (!!result) {
+    setData(result[0]?.rawValue);
+  }
+
+  if (!!error) {
+    console.info(error);
+  }
+}}
+  
+  
+  />
 
               <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
                 QR code within the frame to scan
