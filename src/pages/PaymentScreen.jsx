@@ -9,8 +9,8 @@ import {
   IconButton,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
-import SuccessSound from "../assets/success-sound.mp3"; // Make sure to have this sound file in your project
+import { useLocation, useNavigate } from "react-router-dom";
+import SuccessSound from "../assets/success-sound.mp3";
 import html2canvas from "html2canvas";
 import axiosInstance from "../utils/axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,8 +18,6 @@ import { clearReceiverData } from "../stores/receiverSlice";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import DoneIcon from "@mui/icons-material/Done";
-// Sample data for bank and transaction
-
 
 const formatDate = (date) => {
   const options = {
@@ -38,10 +36,11 @@ const PaymentScreen = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const { state } = useLocation();
-  const { name, willReceiveAmount, note, selectedBank, amount, fee } =
-    state || {};
+  const { name, amount, note, selectedBank, fee = 0.1 } = state || {};
+
+  const willReceiveAmount = amount - amount * fee; // Calculate net amount receiver will get
 
   const [timestamp, setTimestamp] = useState(formatDate(new Date()));
   const [transactionID, setTransactionID] = useState("");
@@ -51,24 +50,29 @@ const PaymentScreen = () => {
 
   const dispatch = useDispatch();
 
-  const isMobileDevice = () => {
-    return /Mobi|Android/i.test(navigator.userAgent);
-  };
+  useEffect(() => {
+    // Check if a PIN is set in localStorage; if not, redirect to /pin-setup
+    const userPin = localStorage.getItem("userPin");
+    if (!userPin) {
+      navigate("/pin-setup");
+    }
+  }, [navigate]);
+
+  const isMobileDevice = () => /Mobi|Android/i.test(navigator.userAgent);
 
   const captureScreenshot = async () => {
     if (screenshotRef.current) {
       const canvas = await html2canvas(screenshotRef.current);
       const image = canvas.toDataURL("image/png");
 
-      // Prepare the message for WhatsApp
-      const message = `Payment Successful!\nwillReceiveAmount: ₹${willReceiveAmount}.00\nPaid to: ${name}\nTransaction ID: ${transactionID}\n${timestamp}`;
+      const message = `Payment Successful!\nWill Receive Amount: ₹${willReceiveAmount.toFixed(
+        2
+      )}\nPaid to: ${name}\nTransaction ID: ${transactionID}\n${timestamp}`;
 
-      // Choose the appropriate WhatsApp URL based on the device
       const whatsappURL = isMobileDevice()
         ? `https://wa.me/?text=${encodeURIComponent(message)}`
         : `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`;
 
-      // Open WhatsApp with the link
       window.open(whatsappURL, "_blank");
     }
   };
@@ -90,19 +94,16 @@ const PaymentScreen = () => {
     setEnteredPin(enteredPin.slice(0, -1));
   };
 
-
-  
   const handlePinSubmit = async () => {
     const correctPin = localStorage.getItem("userPin");
-    console.log(" correctPin", correctPin);
-    if (enteredPin !== correctPin) {  // Check if entered PIN does not match
+    if (enteredPin !== correctPin) {
       setError("Incorrect PIN. Please try again.");
       return;
     }
-  
+
     setError(null);
     setIsLoading(true);
-  
+
     const payload = {
       amount: parseInt(amount, 0),
       bankId: selectedBank?._id || "",
@@ -111,15 +112,11 @@ const PaymentScreen = () => {
       userNote: note || "Payment",
       fees: fee || 0,
     };
-  
+
     try {
-      // Make the API call to transfer funds
       const response = await axiosInstance.post("/user/transferFunds", payload);
-      console.log("response.data.data", response.data.data);
-  
       if (response.data) {
-        setTransactionID(response.data.data); // Store transaction ID
-        console.log("response.data.data", response.data.data);
+        setTransactionID(response.data.data);
         setIsSuccess(true);
         dispatch(clearReceiverData());
       }
@@ -129,9 +126,7 @@ const PaymentScreen = () => {
       setIsLoading(false);
     }
   };
-  
 
-  // Loading Screen
   if (isLoading) {
     return (
       <Box
@@ -149,75 +144,71 @@ const PaymentScreen = () => {
     );
   }
 
-  // Success Screen
-
   if (isSuccess) {
     return (
       <Box
-      ref={screenshotRef}
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      height="80vh"
-      padding={3}
-      maxWidth="400px"
-      margin="0 auto"
-      bgcolor="#fff"
-    >
-      <img
-        src="https://www.abhiyantha.com/trainings/registration/assets/images/Success.gif"
-        style={{ height: "200px" }}
-        alt="Success"
-      />
-      <Typography
-        variant="h4"
-        sx={{ fontWeight: "bold", color: "green", mb: 2 }}
+        ref={screenshotRef}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        height="80vh"
+        padding={3}
+        maxWidth="400px"
+        margin="0 auto"
+        bgcolor="#fff"
       >
-        ₹{Math.abs(transactionID?.credit)}.00
-      </Typography>
-      <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
-        Paid to {transactionID?.recipientOrSenderName}
-      </Typography>
-      <Typography variant="body2" color="textSecondary">
-        {transactionID?.recipientOrSenderUcpiId}@upi
-      </Typography>
-      <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-        {timestamp}
-      </Typography>
-      <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-        UPI transaction ID: {transactionID?.ref}
-      </Typography>
+        <img
+          src="https://www.abhiyantha.com/trainings/registration/assets/images/Success.gif"
+          style={{ height: "200px" }}
+          alt="Success"
+        />
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: "bold", color: "green", mb: 2 }}
+        >
+          ₹{Math.abs(willReceiveAmount.toFixed(2))}.00
+        </Typography>
+        <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
+          Paid to {transactionID?.recipientOrSenderName}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          {transactionID?.recipientOrSenderUcpiId}@upi
+        </Typography>
+        <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+          {timestamp}
+        </Typography>
+        <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+          UPI transaction ID: {transactionID?.ref}
+        </Typography>
 
-      {/* Share on WhatsApp Button */}
-      <Button
-        variant="outlined"
-        sx={{
-          mt: 3,
-          borderColor: "#25D366",
-          color: "#25D366",
-          "&:hover": {
-            backgroundColor: "#25D366",
-            color: "#fff",
-          },
-        }}
-        startIcon={<WhatsAppIcon />}
-        onClick={captureScreenshot}
-      >
-        Share on WhatsApp
-      </Button>
+        <Button
+          variant="outlined"
+          sx={{
+            mt: 3,
+            borderColor: "#25D366",
+            color: "#25D366",
+            "&:hover": {
+              backgroundColor: "#25D366",
+              color: "#fff",
+            },
+          }}
+          startIcon={<WhatsAppIcon />}
+          onClick={captureScreenshot}
+        >
+          Share on WhatsApp
+        </Button>
 
-      {/* Done Button */}
-      <Button
-        variant="contained"
-        color="primary"
-        sx={{ mt: 2, width:220 }}
-        startIcon={<DoneIcon />}
-        onClick={() => navigate("/dashboard")}
-      >
-        back to home
-      </Button>
-    </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ mt: 2, width: 220 }}
+          startIcon={<DoneIcon />}
+          onClick={() => navigate("/dashboard")}
+        >
+          Back to Home
+        </Button>
+      </Box>
     );
   }
 
@@ -264,6 +255,7 @@ const PaymentScreen = () => {
         margin="0 auto"
         bgcolor="#fff"
         borderRadius={3}
+        color="#000"
       >
         <Typography
           variant="h6"
@@ -278,10 +270,13 @@ const PaymentScreen = () => {
           variant="h4"
           sx={{ fontWeight: "bold", color: "#1976d2", mb: 2 }}
         >
-         {userInfo?.currency} {willReceiveAmount}
+         {userInfo?.currency} {willReceiveAmount.toFixed(2)}
         </Typography>
 
-        {/* Enter PIN Section */}
+        <Typography variant="body2" sx={{ color: "#888", fontSize: "0.875rem", textAlign: "center" }}>
+          * Amount shown reflects platform fee deduction
+        </Typography>
+
         <Typography variant="body2" sx={{ mb: 1, fontWeight: "bold" }}>
           ENTER PIN
         </Typography>
@@ -306,7 +301,6 @@ const PaymentScreen = () => {
           ))}
         </Box>
 
-        {/* Error Message */}
         {error && (
           <Alert severity="error" sx={{ mt: 2, width: "100%" }}>
             <Typography variant="body2" sx={{ textAlign: "center" }}>
@@ -315,14 +309,12 @@ const PaymentScreen = () => {
           </Alert>
         )}
 
-        {/* Alert Message */}
         <Alert severity="warning" sx={{ mt: 2, width: "100%" }}>
           <Typography variant="body2" sx={{ textAlign: "center" }}>
             <strong>Alert:</strong> You are transferring money from your bank.
           </Typography>
         </Alert>
 
-        {/* Numeric Keypad */}
         <Grid container spacing={2} sx={{ maxWidth: 240, mt: 3 }}>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, "⌫", 0].map((num, idx) => (
             <Grid item xs={4} key={idx}>
@@ -353,7 +345,6 @@ const PaymentScreen = () => {
           ))}
         </Grid>
 
-        {/* Pay Button */}
         <Box sx={{ mt: 3, width: "100%" }}>
           <Button
             onClick={handlePinSubmit}

@@ -95,7 +95,7 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
   };
 
   return (
-    <Box>
+    <Box sx={{ backgroundColor: "#f0f4f8", minHeight: "100vh", py: 4,color:"#000" }}>
       {/* Header with Back Button */}
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar>
@@ -120,8 +120,7 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
                   key={index}
                   borderBottom="2px solid #1976d2"
                   width={50}
-              height={30}
-
+                  height={30}
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
@@ -167,7 +166,6 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
               key={index}
               width={50}
               height={30}
-
               borderBottom="2px solid #1976d2"
               display="flex"
               alignItems="center"
@@ -199,7 +197,7 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
 
         <Grid container spacing={2} mt={8}>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, "", 0, "delete"].map((item, index) => (
-            <Grid item xs={4} key={index} pl={10} pr={1}>
+            <Grid item xs={4} key={index}>
               {item === "delete" ? (
                 <IconButton
                   onClick={handleDelete}
@@ -219,7 +217,7 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
                 <Box /> // Empty box for spacing
               ) : (
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   onClick={() =>
                     isChangeMode && oldPin.length < 4
                       ? handleNumberClick(item)
@@ -232,9 +230,12 @@ const PinSetupScreen = ({ onBack, onSubmit }) => {
                     height: 65,
                     borderRadius: "50%",
                     fontSize: "1.5rem",
-                    color: "#1976d2",
-                    borderColor: "#1976d2",
+                    backgroundColor: "#1976d2",
+                    color: "#fff",
                     fontWeight: "bold",
+                    "&:hover": {
+                      backgroundColor: "#1565c0",
+                    },
                   }}
                 >
                   {item}
