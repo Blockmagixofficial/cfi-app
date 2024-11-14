@@ -181,7 +181,7 @@ const PaymentConfirmation = () => {
           variant="h3"
           sx={{ fontWeight: "bold", color: "#1976d2", mt: 1 }}
         >
-          {currency === "INR" ? "₹" : "$"} {receiverNetAmount}
+          {currency === "INR" ? "₹" : "$"} {willReceiveAmount}
         </Typography>
         <Typography
           variant="body2"
