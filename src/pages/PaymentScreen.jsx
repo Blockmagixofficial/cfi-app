@@ -47,6 +47,8 @@ const PaymentScreen = () => {
   const [transactionID, setTransactionID] = useState("");
   const screenshotRef = useRef(null);
   const { userData } = useSelector((state) => state.receiver);
+  const userInfo = useSelector((state) => state.user.userInfo);
+
   const dispatch = useDispatch();
 
   const isMobileDevice = () => {
@@ -276,7 +278,7 @@ const PaymentScreen = () => {
           variant="h4"
           sx={{ fontWeight: "bold", color: "#1976d2", mb: 2 }}
         >
-          ₹{willReceiveAmount}
+         {userInfo?.currency} {willReceiveAmount}
         </Typography>
 
         {/* Enter PIN Section */}
