@@ -42,10 +42,13 @@ export default function ProfilePage() {
         // Create a File object from the Blob
         const file = new File([blob], "QRCode.png", { type: "image/png" });
 
-        // Open the native share dialog
+        // Text message to accompany the QR code
+        const textMessage = `Here's your UCPI QR code for receiving payments:\n\nUCPI ID: ${userInfo?.ucpiId}`;
+
+        // Open the native share dialog with the text and file
         await navigator.share({
           title: "UCPI QR Code",
-          text: `Here's your UCPI QR code for receiving payments:\n\nUCPI ID: ${userInfo?.ucpiId}`,
+          text: textMessage,
           files: [file], // Attach the image file
         });
       } catch (error) {
