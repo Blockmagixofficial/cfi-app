@@ -29,7 +29,8 @@ const PaymentConfirmation = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { userData } = useSelector((state) => state.receiver);
-
+  const userInfo = useSelector((state) => state.user.userInfo);
+  console.log(userInfo,"uuuuuu");
   // Platform fee calculation (10%)
   const platformFeePercentage = 0.1;
   const receiverNetAmount = (willReceiveAmount * (1 - platformFeePercentage)).toFixed(2);
@@ -281,7 +282,7 @@ const PaymentConfirmation = () => {
           },
         }}
       >
-        Pay {currency === "INR" ? "₹" : "$"} {amount} with{" "}
+        Pay {userInfo?.currency === "INR" ? "₹" : "$"} {amount} with{" "}
         {currentBank?.bankName}
       </Button>
     </Box>
