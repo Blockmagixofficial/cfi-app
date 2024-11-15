@@ -48,20 +48,7 @@ export default function ProfilePage() {
   };
 
   // Function to download QR code image
-  const downloadQRCode = async () => {
-    const qrElement = document.getElementById("qrCode");
-
-    if (qrElement) {
-      const canvas = await html2canvas(qrElement, { useCORS: true });
-      const imageDataUrl = canvas.toDataURL("image/png");
-
-      // Create a temporary download link
-      const downloadLink = document.createElement("a");
-      downloadLink.href = imageDataUrl;
-      downloadLink.download = "QRCode.png";
-      downloadLink.click();
-    }
-  };
+  
 
   return (
     <Box sx={{ backgroundColor: "white", minHeight: "80vh" }}>
@@ -141,9 +128,7 @@ export default function ProfilePage() {
           <Button variant="contained" color="primary" onClick={shareQRCodeOnWhatsApp} sx={{ mb: 1 }}>
             Share QR Code on WhatsApp
           </Button>
-          <Button variant="contained" color="secondary" onClick={downloadQRCode}>
-            Download QR Code
-          </Button>
+   
         </Box>
       </Box>
 
