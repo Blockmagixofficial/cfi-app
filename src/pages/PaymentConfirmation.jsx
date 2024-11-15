@@ -21,6 +21,9 @@ const PaymentConfirmation = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { name, currency, willReceiveAmount, amount, note, selectedBank } = state || {};
+  const userInfo = useSelector((state) => state.user.userInfo);
+  console.log(" userInfo", userInfo)
+
   const [banks, setBanks] = useState([]);
   const [currentBank, setCurrentBank] = useState(selectedBank || null);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
@@ -281,7 +284,7 @@ const PaymentConfirmation = () => {
           },
         }}
       >
-        Pay {currency === "INR" ? "₹" : "$"} {amount} with{" "}
+        Pay {userInfo?.currency === "INR" ? "₹" : "$"} {amount} with{" "}
         {currentBank?.bankName}
       </Button>
     </Box>
