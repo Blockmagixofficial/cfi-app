@@ -29,33 +29,25 @@ export default function ProfilePage() {
   const shareQRCodeOnWhatsApp = async () => {
     const qrElement = document.getElementById("qrCode");
 
-    if (qrElement && navigator.share) {
+    if (qrElement) {
       try {
         // Capture the QR code as a canvas image
         const canvas = await html2canvas(qrElement, { useCORS: true });
         const imageDataUrl = canvas.toDataURL("image/png");
 
-        // Convert the Base64 image data to a Blob
-        const response = await fetch(imageDataUrl);
-        const blob = await response.blob();
+        // Construct the WhatsApp message with the image link
+        const textMessage = `Here's your UCPI QR code for receiving payments:\n\nUCPI ID: ${userInfo?.ucpiId}\n\nQR Code:\n${imageDataUrl}`;
+        
+        // Encode the message for the WhatsApp URL
+        const encodedMessage = encodeURIComponent(textMessage);
 
-        // Create a File object from the Blob
-        const file = new File([blob], "QRCode.png", { type: "image/png" });
-
-        // Text message to accompany the QR code
-        const textMessage = `Here's your UCPI QR code for receiving payments:\n\nUCPI ID: ${userInfo?.ucpiId}`;
-
-        // Open the native share dialog with the text and file
-        await navigator.share({
-          title: "UCPI QR Code",
-          text: textMessage,
-          files: [file], // Attach the image file
-        });
+        // Open WhatsApp Web with the message
+        window.open(`https://wa.me/?text=${encodedMessage}`, "_blank");
       } catch (error) {
         console.error("Error sharing QR code on WhatsApp:", error);
       }
     } else {
-      alert("Sharing not supported on this device.");
+      alert("QR code element not found.");
     }
   };
 
