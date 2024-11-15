@@ -26,25 +26,43 @@ export default function ProfilePage() {
     navigate("/signin");
   };
 
+  // Function to share QR code on WhatsApp
   const shareQRCodeOnWhatsApp = async () => {
     const qrElement = document.getElementById("qrCode");
-  
+
     if (qrElement) {
       const canvas = await html2canvas(qrElement, { useCORS: true });
       const imageDataUrl = canvas.toDataURL("image/png");
-  
+
       const response = await fetch(imageDataUrl);
       const blob = await response.blob();
-  
+
       const file = new File([blob], "QRCode.png", { type: "image/png" });
-  
+
       const textMessage = `Here's your UCPI QR code for receiving payments:\n\nUCPI ID: ${userInfo?.ucpiId}`;
-  
+
       const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(textMessage)}&media=${encodeURIComponent(imageDataUrl)}`;
-  
+
       window.open(whatsappShareUrl, "_blank");
     }
   };
+
+  // Function to download QR code image
+  const downloadQRCode = async () => {
+    const qrElement = document.getElementById("qrCode");
+
+    if (qrElement) {
+      const canvas = await html2canvas(qrElement, { useCORS: true });
+      const imageDataUrl = canvas.toDataURL("image/png");
+
+      // Create a temporary download link
+      const downloadLink = document.createElement("a");
+      downloadLink.href = imageDataUrl;
+      downloadLink.download = "QRCode.png";
+      downloadLink.click();
+    }
+  };
+
   return (
     <Box sx={{ backgroundColor: "white", minHeight: "80vh" }}>
       {/* Header */}
@@ -118,10 +136,15 @@ export default function ProfilePage() {
           <QRCodeSVG value={userInfo?.ucpiId} size={150} level="H" />
         </Box>
 
-        {/* Share on WhatsApp Button */}
-        <Button variant="contained" color="primary" onClick={shareQRCodeOnWhatsApp} sx={{ mt: 2 }}>
-          Share QR Code on WhatsApp
-        </Button>
+        {/* Share and Download Buttons */}
+        <Box display="flex" flexDirection="column" alignItems="center" sx={{ mt: 2 }}>
+          <Button variant="contained" color="primary" onClick={shareQRCodeOnWhatsApp} sx={{ mb: 1 }}>
+            Share QR Code on WhatsApp
+          </Button>
+          <Button variant="contained" color="secondary" onClick={downloadQRCode}>
+            Download QR Code
+          </Button>
+        </Box>
       </Box>
 
       {/* Logout Section */}
