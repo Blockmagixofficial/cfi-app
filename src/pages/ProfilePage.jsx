@@ -26,29 +26,38 @@ export default function ProfilePage() {
     navigate("/signin");
   };
 
-  // Function to share QR code on WhatsApp
   const shareQRCodeOnWhatsApp = async () => {
     const qrElement = document.getElementById("qrCode");
 
-    if (qrElement) {
-      const canvas = await html2canvas(qrElement, { useCORS: true });
-      const imageDataUrl = canvas.toDataURL("image/png");
+    if (qrElement && navigator.share) {
+      try {
+        // Capture the QR code as a canvas image
+        const canvas = await html2canvas(qrElement, { useCORS: true });
+        const imageDataUrl = canvas.toDataURL("image/png");
 
-      const response = await fetch(imageDataUrl);
-      const blob = await response.blob();
+        // Convert the Base64 image data to a Blob
+        const response = await fetch(imageDataUrl);
+        const blob = await response.blob();
 
-      const file = new File([blob], "QRCode.png", { type: "image/png" });
+        // Create a File object from the Blob
+        const file = new File([blob], "QRCode.png", { type: "image/png" });
 
-      const textMessage = `Here's your UCPI QR code for receiving payments:\n\nUCPI ID: ${userInfo?.ucpiId}`;
+        // Text message to accompany the QR code
+        const textMessage = `Here's your UCPI QR code for receiving payments:\n\nUCPI ID: ${userInfo?.ucpiId}`;
 
-      const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(textMessage)}&media=${encodeURIComponent(imageDataUrl)}`;
-
-      window.open(whatsappShareUrl, "_blank");
+        // Open the native share dialog with the text and file
+        await navigator.share({
+          title: "UCPI QR Code",
+          text: textMessage,
+          files: [file], // Attach the image file
+        });
+      } catch (error) {
+        console.error("Error sharing QR code on WhatsApp:", error);
+      }
+    } else {
+      alert("Sharing not supported on this device.");
     }
   };
-
-  // Function to download QR code image
-  
 
   return (
     <Box sx={{ backgroundColor: "white", minHeight: "80vh" }}>
@@ -123,13 +132,10 @@ export default function ProfilePage() {
           <QRCodeSVG value={userInfo?.ucpiId} size={150} level="H" />
         </Box>
 
-        {/* Share and Download Buttons */}
-        <Box display="flex" flexDirection="column" alignItems="center" sx={{ mt: 2 }}>
-          <Button variant="contained" color="primary" onClick={shareQRCodeOnWhatsApp} sx={{ mb: 1 }}>
-            Share QR Code on WhatsApp
-          </Button>
-   
-        </Box>
+        {/* Share on WhatsApp Button */}
+        <Button variant="contained" color="primary" onClick={shareQRCodeOnWhatsApp} sx={{ mt: 2 }}>
+          Share QR Code on WhatsApp
+        </Button>
       </Box>
 
       {/* Logout Section */}
