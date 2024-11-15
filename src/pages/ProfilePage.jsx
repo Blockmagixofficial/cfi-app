@@ -26,40 +26,33 @@ export default function ProfilePage() {
     navigate("/signin");
   };
 
-  const isMobileDevice = () => {
-    return /Mobi|Android/i.test(navigator.userAgent);
-  };
-
-  const shareQRCode = async () => {
+  const shareQRCodeOnWhatsApp = async () => {
     const qrElement = document.getElementById("qrCode");
 
-    if (qrElement) {
-      const canvas = await html2canvas(qrElement);
-      const imageDataUrl = canvas.toDataURL("image/png");
-      const blob = await (await fetch(imageDataUrl)).blob();
-      const file = new File([blob], "QRCode.png", { type: "image/png" });
-      const message = `Here's my UCPI ID QR Code for receiving money!`;
-
+    if (qrElement && navigator.share) {
       try {
-        if (navigator.share && isMobileDevice()) {
-          // If on mobile and Web Share API is supported, use native share
-          await navigator.share({
-            title: "UCPI QR Code",
-            text: message,
-            files: [file],
-          });
-        } else {
-          // If on desktop, share via WhatsApp Web
-         
+        // Capture the QR code as a canvas image
+        const canvas = await html2canvas(qrElement, { useCORS: true });
+        const imageDataUrl = canvas.toDataURL("image/png");
 
-          const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}&media=${encodeURIComponent(image)}`;
-      
-          window.open(whatsappURL, "_blank");
-        }
+        // Convert the Base64 image data to a Blob
+        const response = await fetch(imageDataUrl);
+        const blob = await response.blob();
+
+        // Create a File object from the Blob
+        const file = new File([blob], "QRCode.png", { type: "image/png" });
+
+        // Open the native share dialog
+        await navigator.share({
+          title: "UCPI QR Code",
+          text: `Here's your UCPI QR code for receiving payments:\n\nUCPI ID: ${userInfo?.ucpiId}`,
+          files: [file], // Attach the image file
+        });
       } catch (error) {
-        console.error("Error sharing:", error);
-        alert("Failed to share the QR code.");
+        console.error("Error sharing QR code on WhatsApp:", error);
       }
+    } else {
+      alert("Sharing not supported on this device.");
     }
   };
 
@@ -81,7 +74,12 @@ export default function ProfilePage() {
       </Box>
 
       {/* Profile Section */}
-      <Box display="flex" alignItems="center" p={2} sx={{ backgroundColor: "#F0F0F5", borderRadius: 2, mb: 2, mt: 4 }}>
+      <Box
+        display="flex"
+        alignItems="center"
+        p={2}
+        sx={{ backgroundColor: "#F0F0F5", borderRadius: 2, mb: 2, mt: 4 }}
+      >
         <Avatar src={userInfo?.profileUrl} alt="Avatar" sx={{ width: 60, height: 60, mr: 2 }} />
         <Box>
           <Typography variant="h6" color="#191970">
@@ -96,7 +94,13 @@ export default function ProfilePage() {
         </IconButton>
       </Box>
 
-      <Box display="flex" alignItems="center" p={2} sx={{ backgroundColor: "#F0F0F5", borderRadius: 2, mb: 2, mt: 4 }} onClick={handlePinSetup}>
+      <Box
+        display="flex"
+        alignItems="center"
+        p={2}
+        sx={{ backgroundColor: "#F0F0F5", borderRadius: 2, mb: 2, mt: 4 }}
+        onClick={handlePinSetup}
+      >
         <Typography>SetUp MPIN For Transaction</Typography>
         <IconButton sx={{ marginLeft: "auto", color: "#191970" }}>
           <ArrowForwardIos />
@@ -104,7 +108,13 @@ export default function ProfilePage() {
       </Box>
 
       {/* Receive Money Section */}
-      <Box display="flex" flexDirection="column" alignItems="center" p={2} sx={{ backgroundColor: "#F0F0F5", borderRadius: 2, mb: 2 }}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        p={2}
+        sx={{ backgroundColor: "#F0F0F5", borderRadius: 2, mb: 2 }}
+      >
         <Box>
           <Typography variant="subtitle1" color="#191970">
             Receive Money
@@ -120,8 +130,8 @@ export default function ProfilePage() {
         </Box>
 
         {/* Share on WhatsApp Button */}
-        <Button variant="contained" color="primary" onClick={shareQRCode} sx={{ mt: 2 }}>
-          Share QR Code
+        <Button variant="contained" color="primary" onClick={shareQRCodeOnWhatsApp} sx={{ mt: 2 }}>
+          Share QR Code on WhatsApp
         </Button>
       </Box>
 
